@@ -1,3 +1,820 @@
+!doctype html>
+<html lang="id" class="h-full dark">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moidea LMS - Game Development</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;family=Rajdhani:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif']
+                    },
+                    colors: {
+                        neon: { violet: '#a855f7', cyan: '#06b6d4', pink: '#ec4899' }
+                    }
+                }
+            }
+        }
+    </script>
+  <style>
+        /* Glassmorphic */
+        .glass { background: rgba(15,23,42,0.7); backdrop-filter: blur(16px); border: 1px solid rgba(168,85,247,0.2); }
+        .glass-light { background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(168,85,247,0.15); }
+        /* Animations */
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes pulse-neon { 0%,100%{box-shadow:0 0 5px #a855f7,0 0 20px rgba(168,85,247,0.3)} 50%{box-shadow:0 0 10px #a855f7,0 0 40px rgba(168,85,247,0.5)} }
+        @keyframes gradient-shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-pulse-neon { animation: pulse-neon 2s ease-in-out infinite; }
+        .animate-gradient { background-size:200% 200%; animation: gradient-shift 8s ease infinite; }
+        .animate-fadeIn { animation: fadeIn 0.5s ease forwards; }
+        .animate-slideIn { animation: slideIn 0.4s ease forwards; }
+        /* Buttons */
+        .btn-neon { transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .btn-neon:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(168,85,247,0.4); }
+        .btn-neon::after { content:''; position:absolute; top:50%; left:50%; width:0; height:0; background:rgba(255,255,255,0.1); border-radius:50%; transform:translate(-50%,-50%); transition:width 0.6s,height 0.6s; }
+        .btn-neon:hover::after { width:300px; height:300px; }
+        /* Cards */
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(168,85,247,0.15); }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:rgba(15,23,42,0.5); }
+        ::-webkit-scrollbar-thumb { background:#a855f7; border-radius:3px; }
+        /* BG */
+        .bg-anime { background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); }
+        .bg-anime-light { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%); }
+        /* Popup */
+        .popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:1000; display:flex; align-items:center; justify-content:center; }
+        .popup-content { animation: fadeIn 0.3s ease; }
+        /* Tab active */
+        .tab-active { border-bottom: 2px solid #a855f7; color: #a855f7; }
+        /* Light mode overrides */
+        html:not(.dark) .glass { background: rgba(255,255,255,0.8); border-color: rgba(168,85,247,0.15); }
+        html:not(.dark) .bg-anime { background: linear-gradient(135deg, #f8fafc 0%, #ede9fe 50%, #f1f5f9 100%); }
+    </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ <script src="/_sdk/telemetry_sdk.js"></script></head>
+ <body class="h-full font-rajdhani bg-anime text-white dark:text-white overflow-auto"><!-- APP CONTAINER -->
+  <div id="app" class="h-full w-full relative"><!-- LOGIN PAGE -->
+   <div id="page-login" class="h-full w-full flex items-center justify-center p-4">
+    <div class="glass rounded-2xl p-8 w-full max-w-sm animate-fadeIn text-center">
+     <div class="animate-float mb-6">
+      <div class="w-20 h-20 mx-auto rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center animate-pulse-neon">
+       <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg>
+      </div>
+     </div>
+     <h1 class="font-orbitron text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">MOIDEA LMS</h1>
+     <p class="text-gray-400 text-sm mb-6">Game Development Academy</p>
+     <div class="space-y-4"><input id="login-code" type="text" maxlength="20" placeholder="Masukkan Kode Akses" class="w-full px-4 py-3 rounded-xl bg-slate-800/60 border border-purple-500/30 text-white text-center text-lg tracking-widest focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all placeholder:text-gray-500 placeholder:tracking-normal placeholder:text-sm"> <button onclick="handleLogin()" class="btn-neon w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 font-semibold text-white">Masuk</button>
+      <p id="login-error" class="text-red-400 text-sm hidden"></p>
+     </div>
+    </div>
+   </div><!-- MAIN DASHBOARD (hidden initially) -->
+   <div id="page-dashboard" class="h-full w-full hidden"><!-- Top Bar -->
+    <header class="glass sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
+     <div class="flex items-center gap-3"><button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-purple-500/20 transition"><i data-lucide="menu" class="w-5 h-5"></i></button>
+      <h2 class="font-orbitron text-sm font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">MOIDEA LMS</h2>
+     </div><!-- Widgets -->
+     <div class="hidden md:flex items-center gap-4 text-xs text-gray-300"><span id="widget-time" class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i><span id="live-time"></span></span> <span id="widget-geo" class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i><span id="live-geo">Memuat...</span></span>
+     </div><!-- Top Right Icons -->
+     <div class="flex items-center gap-2"><button onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-purple-500/20 transition" title="Mode Gelap/Terang"><i data-lucide="sun" class="w-4 h-4 dark:hidden"></i><i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i></button> <button onclick="showHelp()" class="p-2 rounded-lg hover:bg-purple-500/20 transition" title="Bantuan"><i data-lucide="help-circle" class="w-4 h-4"></i></button> <button onclick="window.open('https://moidea.my.id','_blank')" class="p-2 rounded-lg hover:bg-purple-500/20 transition" title="Kembali ke Moidea"><i data-lucide="x" class="w-4 h-4"></i></button>
+     </div>
+    </header>
+    <div class="flex h-[calc(100%-60px)]"><!-- Sidebar -->
+     <aside id="sidebar" class="glass w-60 shrink-0 p-4 hidden lg:block overflow-y-auto">
+      <div class="mb-6 text-center">
+       <div class="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center mb-2"><i data-lucide="user" class="w-6 h-6"></i>
+       </div>
+       <p id="sidebar-role" class="text-xs text-purple-300 font-semibold uppercase"></p>
+       <p id="sidebar-name" class="text-sm text-gray-300"></p>
+      </div>
+      <nav id="sidebar-nav" class="space-y-1"></nav><button onclick="logout()" class="mt-8 w-full py-2 rounded-lg border border-red-500/30 text-red-400 text-sm hover:bg-red-500/10 transition flex items-center justify-center gap-2"><i data-lucide="log-out" class="w-4 h-4"></i>Keluar</button>
+     </aside><!-- Main Content -->
+     <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-6">
+     </main>
+    </div><!-- Footer -->
+    <div class="fixed bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-gray-500/40 font-orbitron">
+     @2026 Moidea-Lybra
+    </div><!-- WhatsApp --> <a href="https://wa.me/6208813924881?text=Mohon%20dibantu%20untuk%20" target="_blank" rel="noopener noreferrer" class="fixed bottom-3 right-3 w-8 h-8 rounded-full bg-green-600/80 flex items-center justify-center hover:bg-green-500 transition z-50" title="WhatsApp">
+     <svg class="w-4 h-4 text-white" fill="currentColor" viewbox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.624-1.467A11.932 11.932 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.115 0-4.09-.57-5.794-1.564l-.415-.247-2.742.87.884-2.675-.271-.432A9.706 9.706 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z" />
+     </svg></a>
+   </div><!-- Mobile Sidebar Overlay -->
+   <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+   <div id="sidebar-mobile" class="fixed left-0 top-0 h-full w-60 glass z-50 transform -translate-x-full transition-transform duration-300 p-4 overflow-y-auto">
+    <div class="flex justify-end mb-4">
+     <button onclick="toggleSidebar()" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div id="sidebar-mobile-content"></div>
+   </div><!-- HELP POPUP -->
+   <div id="help-popup" class="popup-overlay hidden" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="popup-content glass rounded-2xl p-6 max-w-md w-full mx-4 max-h-[80%] overflow-y-auto">
+     <h3 class="font-orbitron text-lg font-bold text-purple-300 mb-4">Panduan Penggunaan</h3>
+     <div class="space-y-3 text-sm text-gray-300">
+      <p><strong class="text-cyan-400">1. Login:</strong> Masukkan kode akses 6 digit yang diberikan guru/admin.</p>
+      <p><strong class="text-cyan-400">2. Admin:</strong> Kelola guru, siswa, dan lihat statistik platform.</p>
+      <p><strong class="text-cyan-400">3. Guru:</strong> Upload materi/tugas, pantau progress siswa, berikan penilaian.</p>
+      <p><strong class="text-cyan-400">4. Siswa:</strong> Akses materi, upload karya, lihat progress, dan download sertifikat.</p>
+      <p><strong class="text-cyan-400">5. Galeri:</strong> Lihat semua karya yang dipublikasikan, berikan komentar &amp; rating.</p>
+      <p class="text-gray-500 text-xs mt-4">Hubungi admin via WhatsApp jika mengalami kendala.</p>
+     </div><button onclick="document.getElementById('help-popup').classList.add('hidden')" class="mt-4 w-full py-2 rounded-lg bg-purple-600/50 hover:bg-purple-600 transition text-sm">Tutup</button>
+    </div>
+   </div>
+  </div><!-- end #app -->
+  <script>
+// ============ STATE ============
+let currentRole = null; // 'admin', 'guru', 'siswa'
+let currentUser = null;
+let currentMenu = null;
+let isDark = true;
+
+// ============ MOCK DATA ============
+const ADMIN_CODE = '<@meta>';
+const teacherAccounts = [
+    { id:'G001', name:'Pak Andi', code:'GR1001', subject:'Game Design' },
+    { id:'G002', name:'Bu Sari', code:'GR1002', subject:'3D Modeling' }
+];
+const studentAccounts = [
+    { id:'S001', name:'Rafi Pratama', code:'ST2001', teacherId:'G001', class:'X-RPL1' },
+    { id:'S002', name:'Aisya Putri', code:'ST2002', teacherId:'G001', class:'X-RPL1' },
+    { id:'S003', name:'Bima Sakti', code:'ST2003', teacherId:'G002', class:'X-RPL2' }
+];
+let materials = [
+    { id:'M1', teacherId:'G001', title:'Pengantar Unity Engine', type:'link', content:'https://unity.com/learn', date:'2025-01-15', aiSuggestion:'Tambahkan tutorial membuat scene pertama' },
+    { id:'M2', teacherId:'G001', title:'Dasar C# untuk Game', type:'text', content:'C# adalah bahasa utama Unity. Variabel, loop, dan fungsi dasar...', date:'2025-01-20', aiSuggestion:'Sertakan latihan membuat script movement' }
+];
+let assignments = [
+    { id:'A1', materialId:'M1', teacherId:'G001', title:'Buat Scene Pertama', deadline:'2025-02-01', description:'Buat scene 3D sederhana dengan terrain dan skybox' }
+];
+let submissions = [
+    { id:'SUB1', studentId:'S001', assignmentId:'A1', link:'https://drive.google.com/example1', description:'Scene dengan terrain gunung', date:'2025-01-28', lat:'-6.2088', lng:'106.8456', approved:true, published:true },
+    { id:'SUB2', studentId:'S002', assignmentId:'A1', link:'https://youtube.com/example2', description:'Video walkthrough scene kota', date:'2025-01-30', lat:'-6.9175', lng:'107.6191', approved:true, published:true }
+];
+let comments = [
+    { id:'C1', submissionId:'SUB1', author:'Pak Andi', text:'Bagus! Terrain-nya detail.', stars:4 }
+];
+
+// ============ GOOGLE SHEETS INTEGRATION ============
+// Ganti URL di bawah dengan URL Web App dari Google Apps Script Anda
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+// Sheet target: "LMSGameSan" di spreadsheet 1A9zJC2ROfRCNz6FRONTM00xr3Ez-3V74H1S_-dcwtG8
+
+/**
+ * Kirim data ke Google Sheets via Apps Script Web App
+ * @param {string} action - Jenis aksi: 'addStudent', 'addTeacher', 'submitWork', dll
+ * @param {object} data - Data yang dikirim
+ * 
+ * Untuk setup Google Apps Script:
+ * 1. Buka spreadsheet target
+ * 2. Extensions > Apps Script
+ * 3. Buat fungsi doPost(e) yang menerima JSON dan menulis ke sheet "LMSGameSan"
+ * 4. Deploy sebagai Web App (Execute as: Me, Access: Anyone)
+ * 5. Salin URL deployment dan tempel di SHEETS_WEBAPP_URL di atas
+ */
+async function sendToSheet(action, data) {
+    try {
+        const payload = { action, sheetName: 'LMSGameSan', ...data, timestamp: new Date().toISOString() };
+        const response = await fetch(SHEETS_WEBAPP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            mode: 'no-cors' // Diperlukan untuk Apps Script
+        });
+        return { success: true };
+    } catch (err) {
+        console.error('Gagal kirim ke sheet:', err);
+        return { success: false, error: err.message };
+    }
+}
+
+// ============ LOGIN ============
+function handleLogin() {
+    const code = document.getElementById('login-code').value.trim();
+    const errEl = document.getElementById('login-error');
+    
+    if (code === ADMIN_CODE) {
+        currentRole = 'admin'; currentUser = { name:'Administrator' };
+    } else {
+        const teacher = teacherAccounts.find(t => t.code === code);
+        if (teacher) { currentRole = 'guru'; currentUser = teacher; }
+        else {
+            const student = studentAccounts.find(s => s.code === code);
+            if (student) { currentRole = 'siswa'; currentUser = student; }
+            else { errEl.textContent = 'Kode salah!'; errEl.classList.remove('hidden'); return; }
+        }
+    }
+    errEl.classList.add('hidden');
+    showDashboard();
+}
+
+function logout() {
+    currentRole = null; currentUser = null;
+    document.getElementById('page-dashboard').classList.add('hidden');
+    document.getElementById('page-login').classList.remove('hidden');
+    document.getElementById('login-code').value = '';
+}
+
+// ============ THEME ============
+function toggleTheme() {
+    isDark = !isDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    lucide.createIcons();
+}
+
+function showHelp() { document.getElementById('help-popup').classList.remove('hidden'); }
+
+// ============ SIDEBAR ============
+function toggleSidebar() {
+    const overlay = document.getElementById('sidebar-overlay');
+    const mobile = document.getElementById('sidebar-mobile');
+    const isOpen = !mobile.classList.contains('-translate-x-full');
+    if (isOpen) { mobile.classList.add('-translate-x-full'); overlay.classList.add('hidden'); }
+    else { mobile.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); }
+}
+
+function buildSidebar() {
+    let menus = [];
+    if (currentRole === 'admin') {
+        menus = [
+            { id:'admin-dashboard', icon:'layout-dashboard', label:'Dashboard' },
+            { id:'admin-users', icon:'users', label:'Manajemen User' },
+            { id:'admin-posts', icon:'file-text', label:'Semua Postingan' },
+            { id:'admin-sheet', icon:'table', label:'Spreadsheet' },
+            { id:'gallery', icon:'image', label:'Galeri Karya' }
+        ];
+    } else if (currentRole === 'guru') {
+        menus = [
+            { id:'guru-dashboard', icon:'layout-dashboard', label:'Dashboard' },
+            { id:'guru-students', icon:'users', label:'Daftar Siswa' },
+            { id:'guru-materials', icon:'book-open', label:'Materi & Tugas' },
+            { id:'guru-progress', icon:'bar-chart-2', label:'Progress Siswa' },
+            { id:'gallery', icon:'image', label:'Galeri Karya' }
+        ];
+    } else {
+        menus = [
+            { id:'siswa-dashboard', icon:'layout-dashboard', label:'Dashboard' },
+            { id:'siswa-materials', icon:'book-open', label:'Materi' },
+            { id:'siswa-submit', icon:'upload', label:'Upload Karya' },
+            { id:'siswa-progress', icon:'bar-chart-2', label:'Progress' },
+            { id:'siswa-certificate', icon:'award', label:'Sertifikat' },
+            { id:'gallery', icon:'image', label:'Galeri Karya' }
+        ];
+    }
+    
+    const navHTML = menus.map(m => `<button onclick="navigateTo('${m.id}')" data-menu="${m.id}" class="menu-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-300 hover:bg-purple-500/20 hover:text-purple-300 transition text-left"><i data-lucide="${m.icon}" class="w-4 h-4"></i>${m.label}</button>`).join('');
+    
+    document.getElementById('sidebar-nav').innerHTML = navHTML;
+    document.getElementById('sidebar-role').textContent = currentRole;
+    document.getElementById('sidebar-name').textContent = currentUser.name;
+    document.getElementById('sidebar-mobile-content').innerHTML = `<div class="mb-4 text-center"><p class="text-xs text-purple-300 uppercase">${currentRole}</p><p class="text-sm">${currentUser.name}</p></div><nav class="space-y-1">${navHTML}</nav><button onclick="logout()" class="mt-6 w-full py-2 rounded-lg border border-red-500/30 text-red-400 text-sm">Keluar</button>`;
+    lucide.createIcons();
+}
+
+function highlightMenu(id) {
+    document.querySelectorAll('.menu-btn').forEach(b => {
+        b.classList.toggle('bg-purple-500/20', b.dataset.menu === id);
+        b.classList.toggle('text-purple-300', b.dataset.menu === id);
+    });
+}
+
+// ============ NAVIGATION ============
+function showDashboard() {
+    document.getElementById('page-login').classList.add('hidden');
+    document.getElementById('page-dashboard').classList.remove('hidden');
+    buildSidebar();
+    const firstMenu = currentRole === 'admin' ? 'admin-dashboard' : currentRole === 'guru' ? 'guru-dashboard' : 'siswa-dashboard';
+    navigateTo(firstMenu);
+}
+
+function navigateTo(menuId) {
+    currentMenu = menuId;
+    highlightMenu(menuId);
+    const main = document.getElementById('main-content');
+    
+    const renderers = {
+        'admin-dashboard': renderAdminDashboard,
+        'admin-users': renderAdminUsers,
+        'admin-posts': renderAdminPosts,
+        'admin-sheet': renderAdminSheet,
+        'guru-dashboard': renderGuruDashboard,
+        'guru-students': renderGuruStudents,
+        'guru-materials': renderGuruMaterials,
+        'guru-progress': renderGuruProgress,
+        'siswa-dashboard': renderSiswaDashboard,
+        'siswa-materials': renderSiswaMaterials,
+        'siswa-submit': renderSiswaSubmit,
+        'siswa-progress': renderSiswaProgress,
+        'siswa-certificate': renderSiswaCertificate,
+        'gallery': renderGallery
+    };
+    
+    if (renderers[menuId]) { main.innerHTML = renderers[menuId](); }
+    main.scrollTop = 0;
+    lucide.createIcons();
+}
+
+// ============ RENDER: ADMIN ============
+function renderAdminDashboard() {
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Dashboard Admin</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            ${statCard('users','Total Guru', teacherAccounts.length, 'from-purple-600 to-violet-600')}
+            ${statCard('user-check','Total Siswa', studentAccounts.length, 'from-cyan-600 to-blue-600')}
+            ${statCard('book-open','Total Materi', materials.length, 'from-pink-600 to-rose-600')}
+            ${statCard('upload','Total Karya', submissions.length, 'from-emerald-600 to-green-600')}
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Aktivitas Terbaru</h3>
+            <div class="space-y-2 text-sm text-gray-300">
+                ${submissions.slice(-3).reverse().map(s => {
+                    const st = studentAccounts.find(x=>x.id===s.studentId);
+                    return `<div class="flex items-center gap-2 p-2 rounded-lg bg-slate-800/40"><i data-lucide="activity" class="w-3 h-3 text-green-400"></i><span>${st?.name||'?'} mengumpulkan karya - ${s.date}</span></div>`;
+                }).join('')}
+            </div>
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Statistik Pengumpulan</h3>
+            ${renderSimpleChart(studentAccounts.map(s=>s.name), studentAccounts.map(s=>submissions.filter(sub=>sub.studentId===s.id).length))}
+        </div>
+    </div>`;
+}
+
+function renderAdminUsers() {
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Manajemen User</h2>
+        <!-- Add Teacher -->
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-cyan-300 mb-3 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Tambah/Edit Guru</h3>
+            <form onsubmit="addTeacher(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input id="inp-tname" placeholder="Nama Guru" class="px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required/>
+                <input id="inp-tsubject" placeholder="Mata Pelajaran" class="px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required/>
+                <input id="inp-tcode" placeholder="Kode Akses (6 digit)" maxlength="6" class="px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required/>
+                <button type="submit" class="btn-neon px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 text-sm font-semibold">Simpan Guru</button>
+            </form>
+        </div>
+        <!-- Add Student -->
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-cyan-300 mb-3 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Tambah/Edit Siswa</h3>
+            <form onsubmit="addStudent(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input id="inp-sname" placeholder="Nama Siswa" class="px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required/>
+                <input id="inp-sclass" placeholder="Kelas" class="px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required/>
+                <select id="inp-steacher" class="px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500">
+                    ${teacherAccounts.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}
+                </select>
+                <button type="submit" class="btn-neon px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 text-sm font-semibold">Simpan Siswa</button>
+            </form>
+        </div>
+        <!-- User Lists -->
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Daftar Guru</h3>
+            <div class="overflow-x-auto"><table class="w-full text-sm text-left">
+                <thead class="text-xs text-purple-400 border-b border-purple-500/20"><tr><th class="py-2 px-2">Nama</th><th class="py-2 px-2">Mapel</th><th class="py-2 px-2">Kode</th><th class="py-2 px-2">Aksi</th></tr></thead>
+                <tbody class="text-gray-300">${teacherAccounts.map(t=>`<tr class="border-b border-slate-700/30"><td class="py-2 px-2">${t.name}</td><td class="py-2 px-2">${t.subject}</td><td class="py-2 px-2 font-mono text-cyan-400">${t.code}</td><td class="py-2 px-2"><button onclick="deleteUser('teacher','${t.id}')" class="text-red-400 hover:text-red-300 text-xs">Hapus</button></td></tr>`).join('')}</tbody>
+            </table></div>
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Daftar Siswa</h3>
+            <div class="overflow-x-auto"><table class="w-full text-sm text-left">
+                <thead class="text-xs text-purple-400 border-b border-purple-500/20"><tr><th class="py-2 px-2">Nama</th><th class="py-2 px-2">Kelas</th><th class="py-2 px-2">Kode</th><th class="py-2 px-2">Guru</th><th class="py-2 px-2">Aksi</th></tr></thead>
+                <tbody class="text-gray-300">${studentAccounts.map(s=>{const t=teacherAccounts.find(x=>x.id===s.teacherId); return `<tr class="border-b border-slate-700/30"><td class="py-2 px-2">${s.name}</td><td class="py-2 px-2">${s.class}</td><td class="py-2 px-2 font-mono text-cyan-400">${s.code}</td><td class="py-2 px-2">${t?.name||'-'}</td><td class="py-2 px-2"><button onclick="deleteUser('student','${s.id}')" class="text-red-400 hover:text-red-300 text-xs">Hapus</button></td></tr>`;}).join('')}</tbody>
+            </table></div>
+        </div>
+    </div>`;
+}
+
+function renderAdminPosts() {
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Semua Postingan</h2>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-cyan-300 mb-3">Materi Guru</h3>
+            <div class="space-y-2">${materials.map(m=>{const t=teacherAccounts.find(x=>x.id===m.teacherId); return `<div class="p-3 rounded-lg bg-slate-800/40 flex justify-between items-start"><div><p class="font-semibold text-sm">${m.title}</p><p class="text-xs text-gray-400">${t?.name} • ${m.date}</p></div><button onclick="deletePost('material','${m.id}')" class="text-red-400 text-xs hover:text-red-300">Hapus</button></div>`;}).join('')}</div>
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-cyan-300 mb-3">Karya Siswa</h3>
+            <div class="space-y-2">${submissions.map(s=>{const st=studentAccounts.find(x=>x.id===s.studentId); return `<div class="p-3 rounded-lg bg-slate-800/40 flex justify-between items-start"><div><p class="font-semibold text-sm">${st?.name}: ${s.description}</p><p class="text-xs text-gray-400">${s.date} • <a href="${s.link}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 underline">Link</a></p></div><button onclick="deletePost('submission','${s.id}')" class="text-red-400 text-xs hover:text-red-300">Hapus</button></div>`;}).join('')}</div>
+        </div>
+    </div>`;
+}
+
+function renderAdminSheet() {
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Spreadsheet</h2>
+        <div class="glass rounded-xl p-4">
+            <p class="text-sm text-gray-300 mb-4">Data LMS tersimpan di Google Sheets. Klik tombol di bawah untuk membuka spreadsheet.</p>
+            <a href="https://docs.google.com/spreadsheets/d/1A9zJC2ROfRCNz6FRONTM00xr3Ez-3V74H1S_-dcwtG8/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn-neon inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-sm font-semibold"><i data-lucide="external-link" class="w-4 h-4"></i>Buka Google Sheets</a>
+        </div>
+    </div>`;
+}
+
+// ============ RENDER: GURU ============
+function renderGuruDashboard() {
+    const myStudents = studentAccounts.filter(s=>s.teacherId===currentUser.id);
+    const mySubs = submissions.filter(s=>myStudents.some(st=>st.id===s.studentId));
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Dashboard Guru</h2>
+        <p class="text-gray-400">Selamat datang, ${currentUser.name}!</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            ${statCard('users','Siswa Saya', myStudents.length, 'from-purple-600 to-violet-600')}
+            ${statCard('book-open','Materi', materials.filter(m=>m.teacherId===currentUser.id).length, 'from-cyan-600 to-blue-600')}
+            ${statCard('check-circle','Karya Masuk', mySubs.length, 'from-emerald-600 to-green-600')}
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Pengumpulan Terbaru</h3>
+            <div class="space-y-2">${mySubs.slice(-5).reverse().map(s=>{const st=studentAccounts.find(x=>x.id===s.studentId); return `<div class="p-2 rounded-lg bg-slate-800/40 text-sm flex justify-between"><span>${st?.name} - ${s.description}</span><span class="text-xs text-gray-500">${s.date}</span></div>`;}).join('')||'<p class="text-gray-500 text-sm">Belum ada pengumpulan.</p>'}</div>
+        </div>
+    </div>`;
+}
+
+function renderGuruStudents() {
+    const myStudents = studentAccounts.filter(s=>s.teacherId===currentUser.id);
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Daftar Siswa</h2>
+        <div class="glass rounded-xl p-4 overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs text-purple-400 border-b border-purple-500/20"><tr><th class="py-2 px-2">Nama</th><th class="py-2 px-2">Kelas</th><th class="py-2 px-2">Kode Akses</th><th class="py-2 px-2">Karya</th></tr></thead>
+                <tbody class="text-gray-300">${myStudents.map(s=>`<tr class="border-b border-slate-700/30"><td class="py-2 px-2">${s.name}</td><td class="py-2 px-2">${s.class}</td><td class="py-2 px-2 font-mono text-cyan-400">${s.code}</td><td class="py-2 px-2">${submissions.filter(sub=>sub.studentId===s.id).length}</td></tr>`).join('')}</tbody>
+            </table>
+        </div>
+    </div>`;
+}
+
+function renderGuruMaterials() {
+    const myMaterials = materials.filter(m=>m.teacherId===currentUser.id);
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Materi & Tugas</h2>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-cyan-300 mb-3">Tambah Materi Baru</h3>
+            <form onsubmit="addMaterial(event)" class="space-y-3">
+                <input id="inp-mtitle" placeholder="Judul Materi" class="w-full px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required/>
+                <select id="inp-mtype" class="w-full px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white">
+                    <option value="link">Link</option><option value="text">Teks</option>
+                </select>
+                <textarea id="inp-mcontent" placeholder="Konten (URL atau teks materi)" rows="3" class="w-full px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required></textarea>
+                <div class="p-3 rounded-lg bg-purple-900/30 border border-purple-500/20">
+                    <p class="text-xs text-purple-300 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i>Saran AI:</p>
+                    <p id="ai-suggestion" class="text-xs text-gray-400 mt-1">Masukkan judul untuk mendapatkan saran link materi terkait...</p>
+                </div>
+                <button type="submit" class="btn-neon px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 text-sm font-semibold">Publikasikan</button>
+            </form>
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Materi Saya</h3>
+            <div class="space-y-2">${myMaterials.map(m=>`<div class="p-3 rounded-lg bg-slate-800/40 card-hover"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm">${m.title}</p><p class="text-xs text-gray-400">${m.type==='link'?'🔗 Link':'📝 Teks'} • ${m.date}</p>${m.aiSuggestion?`<p class="text-xs text-purple-400 mt-1">💡 ${m.aiSuggestion}</p>`:''}</div><div class="flex gap-2"><button onclick="editMaterial('${m.id}')" class="text-cyan-400 text-xs">Edit</button><button onclick="deleteMaterial('${m.id}')" class="text-red-400 text-xs">Hapus</button></div></div></div>`).join('')}</div>
+        </div>
+    </div>`;
+}
+
+function renderGuruProgress() {
+    const myStudents = studentAccounts.filter(s=>s.teacherId===currentUser.id);
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Progress Siswa</h2>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Grafik Penyelesaian Tugas</h3>
+            ${renderSimpleChart(myStudents.map(s=>s.name), myStudents.map(s=>submissions.filter(sub=>sub.studentId===s.id).length))}
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Detail Pengumpulan</h3>
+            <div class="space-y-3">${myStudents.map(s=>{
+                const subs = submissions.filter(sub=>sub.studentId===s.id);
+                return `<div class="p-3 rounded-lg bg-slate-800/40"><p class="font-semibold text-sm text-cyan-300">${s.name} <span class="text-gray-500 font-normal">(${s.class})</span></p><div class="mt-2 space-y-1">${subs.length?subs.map(sub=>`<div class="text-xs text-gray-400 flex flex-wrap gap-2"><span>📅 ${sub.date}</span><span>📍 ${sub.lat}, ${sub.lng}</span><span class="${sub.approved?'text-green-400':'text-yellow-400'}">${sub.approved?'✅ Disetujui':'⏳ Pending'}</span></div>`).join(''):'<p class="text-xs text-gray-500">Belum ada pengumpulan</p>'}</div></div>`;
+            }).join('')}</div>
+        </div>
+    </div>`;
+}
+
+// ============ RENDER: SISWA ============
+function renderSiswaDashboard() {
+    const mySubs = submissions.filter(s=>s.studentId===currentUser.id);
+    const totalAssign = assignments.filter(a=>a.teacherId===currentUser.teacherId).length;
+    const completed = mySubs.length;
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Dashboard Siswa</h2>
+        <p class="text-gray-400">Halo, ${currentUser.name}! Kelas ${currentUser.class}</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            ${statCard('book-open','Total Tugas', totalAssign||materials.length, 'from-purple-600 to-violet-600')}
+            ${statCard('check-circle','Dikumpulkan', completed, 'from-emerald-600 to-green-600')}
+            ${statCard('clock','Sisa Tugas', Math.max(0,(totalAssign||materials.length)-completed), 'from-orange-600 to-amber-600')}
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Karya Saya</h3>
+            <div class="space-y-2">${mySubs.length?mySubs.map(s=>`<div class="p-3 rounded-lg bg-slate-800/40 flex justify-between items-center"><div><p class="text-sm">${s.description}</p><p class="text-xs text-gray-500">${s.date}</p></div><span class="${s.approved?'text-green-400':'text-yellow-400'} text-xs">${s.approved?'✅ Approved':'⏳ Pending'}</span></div>`).join(''):'<p class="text-sm text-gray-500">Belum ada karya yang dikumpulkan.</p>'}</div>
+        </div>
+    </div>`;
+}
+
+function renderSiswaMaterials() {
+    const myMaterials = materials.filter(m=>m.teacherId===currentUser.teacherId);
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Materi Pembelajaran</h2>
+        <div class="space-y-3">${myMaterials.map(m=>`<div class="glass rounded-xl p-4 card-hover"><h3 class="font-semibold text-cyan-300">${m.title}</h3><p class="text-xs text-gray-500 mb-2">${m.date}</p>${m.type==='link'?`<a href="${m.content}" target="_blank" rel="noopener noreferrer" class="text-sm text-purple-400 underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i>Buka Materi</a>`:`<p class="text-sm text-gray-300">${m.content}</p>`}${m.aiSuggestion?`<p class="text-xs text-purple-400 mt-2 p-2 rounded bg-purple-900/20">💡 ${m.aiSuggestion}</p>`:''}</div>`).join('')||'<p class="text-gray-500">Belum ada materi.</p>'}</div>
+    </div>`;
+}
+
+function renderSiswaSubmit() {
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Upload Karya</h2>
+        <div class="glass rounded-xl p-4">
+            <form onsubmit="submitWork(event)" class="space-y-3">
+                <select id="inp-sassign" class="w-full px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white">
+                    ${materials.filter(m=>m.teacherId===currentUser.teacherId).map(m=>`<option value="${m.id}">${m.title}</option>`).join('')}
+                </select>
+                <input id="inp-slink" placeholder="Link karya (GDrive, YouTube, GitHub, dll)" class="w-full px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required/>
+                <textarea id="inp-sdesc" placeholder="Keterangan hasil karya..." rows="3" class="w-full px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none focus:border-purple-500" required></textarea>
+                <div class="p-3 rounded-lg bg-purple-900/30 border border-purple-500/20">
+                    <p class="text-xs text-purple-300 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i>AI Pengembangan Ide:</p>
+                    <p class="text-xs text-gray-400 mt-1">Deskripsikan karya Anda untuk mendapatkan saran pengembangan dari AI...</p>
+                </div>
+                <label class="flex items-center gap-2 text-sm text-gray-300">
+                    <input type="checkbox" id="inp-spublish" class="rounded border-purple-500 text-purple-600 focus:ring-purple-500"/>
+                    Saya setuju karya ini dipublikasikan di Galeri
+                </label>
+                <button type="submit" class="btn-neon w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 text-sm font-semibold">Upload Karya</button>
+            </form>
+            <p id="submit-msg" class="mt-3 text-sm hidden"></p>
+        </div>
+    </div>`;
+}
+
+function renderSiswaProgress() {
+    const mySubs = submissions.filter(s=>s.studentId===currentUser.id);
+    const total = materials.filter(m=>m.teacherId===currentUser.teacherId).length||1;
+    const pct = Math.round((mySubs.length/total)*100);
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Progress Saya</h2>
+        <div class="glass rounded-xl p-4">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-20 h-20 rounded-full border-4 border-purple-500 flex items-center justify-center"><span class="font-orbitron text-xl font-bold text-purple-300">${pct}%</span></div>
+                <div><p class="text-sm text-gray-300">${mySubs.length} dari ${total} tugas selesai</p><p class="text-xs text-gray-500">Terus semangat! 🎮</p></div>
+            </div>
+            <div class="w-full h-3 rounded-full bg-slate-700 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 transition-all" style="width:${pct}%"></div></div>
+        </div>
+        <div class="glass rounded-xl p-4">
+            <h3 class="font-semibold text-purple-300 mb-3">Riwayat Pengumpulan</h3>
+            <div class="space-y-2">${mySubs.map(s=>`<div class="p-2 rounded-lg bg-slate-800/40 text-sm"><p>${s.description}</p><p class="text-xs text-gray-500">${s.date} • 📍${s.lat},${s.lng}</p></div>`).join('')||'<p class="text-gray-500 text-sm">Belum ada.</p>'}</div>
+        </div>
+    </div>`;
+}
+
+function renderSiswaCertificate() {
+    const mySubs = submissions.filter(s=>s.studentId===currentUser.id);
+    const total = materials.filter(m=>m.teacherId===currentUser.teacherId).length;
+    const allApproved = mySubs.length >= total && mySubs.every(s=>s.approved) && total > 0;
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Sertifikat</h2>
+        <div class="glass rounded-xl p-6 text-center">
+            ${allApproved?`
+                <div class="animate-float">
+                    <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center mb-4"><i data-lucide="award" class="w-12 h-12 text-white"></i></div>
+                </div>
+                <h3 class="font-orbitron text-lg font-bold text-yellow-300 mb-2">Selamat! 🎉</h3>
+                <p class="text-gray-300 text-sm mb-4">Semua tugas telah diselesaikan dan disetujui guru.</p>
+                <button onclick="downloadCertificate()" class="btn-neon px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-600 text-sm font-semibold">Download Sertifikat</button>
+            `:`
+                <div class="w-24 h-24 mx-auto rounded-full bg-slate-700/50 flex items-center justify-center mb-4"><i data-lucide="lock" class="w-12 h-12 text-gray-500"></i></div>
+                <h3 class="text-lg font-semibold text-gray-400 mb-2">Belum Tersedia</h3>
+                <p class="text-gray-500 text-sm">Selesaikan semua tugas dan dapatkan persetujuan guru untuk membuka sertifikat.</p>
+                <p class="text-xs text-gray-600 mt-2">Progress: ${mySubs.length}/${total} tugas</p>
+            `}
+        </div>
+    </div>`;
+}
+
+// ============ RENDER: GALLERY ============
+function renderGallery() {
+    const published = submissions.filter(s=>s.published);
+    return `<div class="animate-fadeIn space-y-6">
+        <h2 class="font-orbitron text-xl font-bold text-purple-300">Galeri Karya Siswa</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${published.map(s=>{
+                const st = studentAccounts.find(x=>x.id===s.studentId);
+                const cmts = comments.filter(c=>c.submissionId===s.id);
+                const avgStar = cmts.length ? (cmts.reduce((a,c)=>a+c.stars,0)/cmts.length).toFixed(1) : '-';
+                return `<div class="glass rounded-xl overflow-hidden card-hover">
+                    <div class="h-32 bg-gradient-to-br from-purple-900/60 to-cyan-900/60 flex items-center justify-center"><i data-lucide="gamepad-2" class="w-12 h-12 text-purple-400/50"></i></div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-sm text-cyan-300">${s.description}</h4>
+                        <p class="text-xs text-gray-500">oleh ${st?.name||'?'} • ${s.date}</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-yellow-400 text-xs">⭐ ${avgStar}</span>
+                            <span class="text-gray-500 text-xs">(${cmts.length} komentar)</span>
+                        </div>
+                        <div class="flex gap-2 mt-3">
+                            <a href="${s.link}" target="_blank" rel="noopener noreferrer" class="btn-neon flex-1 text-center py-1.5 rounded-lg bg-purple-600/50 text-xs">Lihat Detail</a>
+                            <button onclick="showComments('${s.id}')" class="btn-neon flex-1 py-1.5 rounded-lg bg-cyan-600/50 text-xs">Komentar</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('')||'<p class="text-gray-500 col-span-full text-center">Belum ada karya yang dipublikasikan.</p>'}
+        </div>
+    </div>`;
+}
+
+// ============ HELPERS ============
+function statCard(icon, label, value, gradient) {
+    return `<div class="glass rounded-xl p-4 card-hover"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center"><i data-lucide="${icon}" class="w-5 h-5 text-white"></i></div><div><p class="text-xs text-gray-400">${label}</p><p class="text-xl font-bold font-orbitron">${value}</p></div></div></div>`;
+}
+
+function renderSimpleChart(labels, values) {
+    const max = Math.max(...values, 1);
+    return `<div class="space-y-2">${labels.map((l,i)=>`<div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-24 truncate">${l}</span><div class="flex-1 h-5 rounded-full bg-slate-700/50 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 transition-all" style="width:${(values[i]/max)*100}%"></div></div><span class="text-xs text-cyan-300 w-6 text-right">${values[i]}</span></div>`).join('')}</div>`;
+}
+
+// ============ ACTIONS ============
+function addTeacher(e) {
+    e.preventDefault();
+    const name = document.getElementById('inp-tname').value;
+    const subject = document.getElementById('inp-tsubject').value;
+    const code = document.getElementById('inp-tcode').value;
+    const id = 'G' + String(teacherAccounts.length+1).padStart(3,'0');
+    teacherAccounts.push({ id, name, code, subject });
+    sendToSheet('addTeacher', { id, name, code, subject });
+    navigateTo('admin-users');
+}
+
+function addStudent(e) {
+    e.preventDefault();
+    const name = document.getElementById('inp-sname').value;
+    const cls = document.getElementById('inp-sclass').value;
+    const teacherId = document.getElementById('inp-steacher').value;
+    const id = 'S' + String(studentAccounts.length+1).padStart(3,'0');
+    const code = 'ST' + String(2000+studentAccounts.length+1);
+    studentAccounts.push({ id, name, code, teacherId, class:cls });
+    sendToSheet('addStudent', { id, name, code, teacherId, class:cls });
+    navigateTo('admin-users');
+}
+
+function deleteUser(type, id) {
+    if (type==='teacher') { const i=teacherAccounts.findIndex(x=>x.id===id); if(i>-1)teacherAccounts.splice(i,1); }
+    else { const i=studentAccounts.findIndex(x=>x.id===id); if(i>-1)studentAccounts.splice(i,1); }
+    navigateTo('admin-users');
+}
+
+function deletePost(type, id) {
+    if (type==='material') { const i=materials.findIndex(x=>x.id===id); if(i>-1)materials.splice(i,1); }
+    else { const i=submissions.findIndex(x=>x.id===id); if(i>-1)submissions.splice(i,1); }
+    navigateTo('admin-posts');
+}
+
+function addMaterial(e) {
+    e.preventDefault();
+    const title = document.getElementById('inp-mtitle').value;
+    const type = document.getElementById('inp-mtype').value;
+    const content = document.getElementById('inp-mcontent').value;
+    const id = 'M' + (materials.length+1);
+    const aiSuggestions = ['Tambahkan video tutorial pendukung','Sertakan quiz interaktif','Link ke dokumentasi resmi','Berikan contoh project sederhana'];
+    const aiSuggestion = aiSuggestions[Math.floor(Math.random()*aiSuggestions.length)];
+    materials.push({ id, teacherId:currentUser.id, title, type, content, date:new Date().toISOString().split('T')[0], aiSuggestion });
+    sendToSheet('addMaterial', { id, teacherId:currentUser.id, title, type, content });
+    navigateTo('guru-materials');
+}
+
+function editMaterial(id) { navigateTo('guru-materials'); } // Simplified
+function deleteMaterial(id) { const i=materials.findIndex(x=>x.id===id); if(i>-1)materials.splice(i,1); navigateTo('guru-materials'); }
+
+function submitWork(e) {
+    e.preventDefault();
+    const link = document.getElementById('inp-slink').value;
+    const desc = document.getElementById('inp-sdesc').value;
+    const publish = document.getElementById('inp-spublish').checked;
+    const id = 'SUB' + (submissions.length+1);
+    const now = new Date();
+    
+    // Get geolocation
+    let lat='-', lng='-';
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(p=>{ lat=p.coords.latitude.toFixed(4); lng=p.coords.longitude.toFixed(4); });
+    }
+    
+    submissions.push({ id, studentId:currentUser.id, assignmentId:'A1', link, description:desc, date:now.toISOString().split('T')[0], lat, lng, approved:false, published:publish });
+    sendToSheet('submitWork', { id, studentId:currentUser.id, studentName:currentUser.name, link, description:desc, lat, lng, published:publish });
+    
+    const msg = document.getElementById('submit-msg');
+    msg.textContent = '✅ Karya berhasil diupload!';
+    msg.classList.remove('hidden');
+    msg.classList.add('text-green-400');
+    setTimeout(()=>navigateTo('siswa-submit'), 1500);
+}
+
+function downloadCertificate() {
+    // Generate simple certificate via canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = 800; canvas.height = 560;
+    const ctx = canvas.getContext('2d');
+    // BG
+    const grad = ctx.createLinearGradient(0,0,800,560);
+    grad.addColorStop(0,'#1e1b4b'); grad.addColorStop(1,'#0f172a');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,800,560);
+    // Border
+    ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 4;
+    ctx.strokeRect(20,20,760,520);
+    // Text
+    ctx.fillStyle = '#a855f7'; ctx.font = 'bold 28px Orbitron, sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('SERTIFIKAT', 400, 80);
+    ctx.fillStyle = '#e2e8f0'; ctx.font = '16px Rajdhani, sans-serif';
+    ctx.fillText('Diberikan kepada:', 400, 140);
+    ctx.fillStyle = '#06b6d4'; ctx.font = 'bold 32px Rajdhani, sans-serif';
+    ctx.fillText(currentUser.name, 400, 190);
+    ctx.fillStyle = '#e2e8f0'; ctx.font = '16px Rajdhani, sans-serif';
+    ctx.fillText('Telah menyelesaikan seluruh program', 400, 250);
+    ctx.fillText('Game Development Academy', 400, 280);
+    ctx.fillText('Moidea LMS - ' + new Date().getFullYear(), 400, 340);
+    ctx.fillStyle = '#64748b'; ctx.font = '12px Rajdhani, sans-serif';
+    ctx.fillText('@2026 Moidea-Lybra', 400, 520);
+    
+    const link = document.createElement('a');
+    link.download = `Sertifikat_${currentUser.name.replace(/\s/g,'_')}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+}
+
+function showComments(subId) {
+    const cmts = comments.filter(c=>c.submissionId===subId);
+    const sub = submissions.find(s=>s.id===subId);
+    const popup = document.createElement('div');
+    popup.className = 'popup-overlay';
+    popup.onclick = function(e){ if(e.target===this)this.remove(); };
+    popup.innerHTML = `<div class="popup-content glass rounded-2xl p-6 max-w-md w-full mx-4 max-h-[70%] overflow-y-auto">
+        <h3 class="font-orbitron text-lg font-bold text-purple-300 mb-4">Komentar</h3>
+        <div class="space-y-2 mb-4">${cmts.length?cmts.map(c=>`<div class="p-2 rounded-lg bg-slate-800/40"><div class="flex justify-between"><span class="text-sm font-semibold text-cyan-300">${c.author}</span><span class="text-yellow-400 text-xs">${'⭐'.repeat(c.stars)}</span></div><p class="text-xs text-gray-300 mt-1">${c.text}</p>${currentRole==='admin'?`<button onclick="deleteComment('${c.id}');this.closest('.popup-overlay').remove()" class="text-red-400 text-xs mt-1">Hapus</button>`:''}</div>`).join(''):'<p class="text-gray-500 text-sm">Belum ada komentar.</p>'}</div>
+        <form onsubmit="addComment(event,'${subId}',this.closest('.popup-overlay'))" class="space-y-2">
+            <input placeholder="Tulis komentar..." class="w-full px-3 py-2 rounded-lg bg-slate-800/60 border border-purple-500/30 text-sm text-white focus:outline-none" required id="cmt-text-${subId}"/>
+            <div class="flex items-center gap-2"><label class="text-xs text-gray-400">Rating:</label><select id="cmt-star-${subId}" class="px-2 py-1 rounded bg-slate-800/60 border border-purple-500/30 text-sm text-white"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></div>
+            <button type="submit" class="btn-neon w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 text-sm">Kirim</button>
+        </form>
+        <button onclick="this.closest('.popup-overlay').remove()" class="mt-3 w-full py-2 rounded-lg border border-gray-600 text-gray-400 text-sm">Tutup</button>
+    </div>`;
+    document.body.appendChild(popup);
+    lucide.createIcons();
+}
+
+function addComment(e, subId, overlay) {
+    e.preventDefault();
+    const text = document.getElementById('cmt-text-'+subId).value;
+    const stars = parseInt(document.getElementById('cmt-star-'+subId).value);
+    const author = currentUser.name;
+    comments.push({ id:'C'+(comments.length+1), submissionId:subId, author, text, stars });
+    sendToSheet('addComment', { submissionId:subId, author, text, stars });
+    if(overlay) overlay.remove();
+    if(currentMenu==='gallery') navigateTo('gallery');
+}
+
+function deleteComment(id) { const i=comments.findIndex(c=>c.id===id); if(i>-1)comments.splice(i,1); }
+
+// ============ LIVE WIDGETS ============
+function updateTime() {
+    const now = new Date();
+    const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const el = document.getElementById('live-time');
+    if(el) el.textContent = `${days[now.getDay()]}, ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}`;
+}
+setInterval(updateTime, 1000); updateTime();
+
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+        const el = document.getElementById('live-geo');
+        if(el) el.textContent = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+    }, ()=>{ const el=document.getElementById('live-geo'); if(el)el.textContent='Tidak tersedia'; });
+}
+
+// ============ AI SUGGESTION (Simulated) ============
+document.addEventListener('input', function(e) {
+    if (e.target.id === 'inp-mtitle') {
+        const title = e.target.value.toLowerCase();
+        const el = document.getElementById('ai-suggestion');
+        if (!el) return;
+        if (title.includes('unity')) el.textContent = '💡 Saran: Sertakan link ke Unity Learn (https://learn.unity.com) dan tutorial pembuatan game 2D sederhana.';
+        else if (title.includes('blender')||title.includes('3d')) el.textContent = '💡 Saran: Tambahkan tutorial Blender Donut dan link ke channel Blender Guru.';
+        else if (title.includes('c#')||title.includes('coding')) el.textContent = '💡 Saran: Link ke W3Schools C# dan contoh script player movement.';
+        else if (title.includes('game design')) el.textContent = '💡 Saran: Referensikan GDD template dan video Extra Credits tentang game design.';
+        else if (title.length > 3) el.textContent = '💡 Saran: Tambahkan video penjelasan dan quiz interaktif untuk materi ini.';
+        else el.textContent = 'Masukkan judul untuk mendapatkan saran link materi terkait...';
+    }
+});
+
+// ============ ELEMENT SDK INIT ============
+const defaultConfig = {
+    platform_title: 'MOIDEA LMS',
+    background_color: '#0f172a',
+    surface_color: '#1e1b4b',
+    text_color: '#e2e8f0',
+    primary_action_color: '#a855f7',
+    secondary_action_color: '#06b6d4'
+};
+
 function applyConfig(config) {
     document.body.style.setProperty('--bg', config.background_color || defaultConfig.background_color);
     document.body.style.setProperty('--surface', config.surface_color || defaultConfig.surface_color);
