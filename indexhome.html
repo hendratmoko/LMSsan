@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS Game San</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        main: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+  <style>
+        html, body { height: 100%; margin: 0; }
+        .app-wrapper { height: 100%; overflow-y: auto; }
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
+        .accent-gradient { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+        .toast { padding: 12px 20px; border-radius: 8px; color: white; margin-bottom: 8px; animation: fadeIn 0.3s ease; }
+        .toast-success { background: #10b981; }
+        .toast-error { background: #ef4444; }
+        .quiz-option { transition: all 0.2s; cursor: pointer; }
+        .quiz-option:hover { background: rgba(99,102,241,0.2); }
+        .quiz-option.selected { background: rgba(99,102,241,0.3); border-color: #6366f1; }
+    </style>
+  <style>body { box-sizing: border-box; }</style>
+ <script src="/_sdk/telemetry_sdk.js"></script></head>
+ <body class="h-full">
+  <div class="app-wrapper gradient-bg font-main text-gray-100" id="app">
+   <div class="toast-container" id="toastContainer"></div><!-- LOGIN PAGE -->
+   <div id="loginPage" class="min-h-full flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+     <div class="text-center mb-8 fade-in">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl accent-gradient mb-4"><i data-lucide="gamepad-2" class="w-8 h-8 text-white"></i>
+      </div>
+      <h1 class="text-3xl font-bold" id="siteTitle">LMS Game San</h1>
+      <p class="text-gray-400 mt-2" id="welcomeText">Selamat Datang di LMS Game San</p>
+     </div>
+     <div class="glass rounded-2xl p-6 fade-in">
+      <div class="mb-4"><label class="block text-sm text-gray-400 mb-1" for="loginRole">Masuk Sebagai</label> <select id="loginRole" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500"> <option value="admin">Admin</option> <option value="guru">Guru</option> <option value="siswa">Siswa</option> </select>
+      </div>
+      <div class="mb-4"><label class="block text-sm text-gray-400 mb-1" for="loginName">Nama</label> <input id="loginName" type="text" placeholder="Masukkan nama" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500">
+      </div>
+      <div class="mb-6"><label class="block text-sm text-gray-400 mb-1" for="loginCode">Kode/Password</label> <input id="loginCode" type="password" placeholder="Masukkan kode" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500">
+      </div><button onclick="handleLogin()" class="w-full accent-gradient text-white font-semibold py-3 rounded-lg hover:opacity-90 transition">Masuk</button>
+      <p id="loginError" class="text-red-400 text-sm mt-3 hidden"></p>
+     </div><!-- WhatsApp -->
+     <div class="text-center mt-4"><a href="https://wa.me/6208813924881?text=Mohon%20dibantu%20untuk%20" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-xs text-gray-500 hover:text-green-400 transition">
+       <svg class="w-3 h-3 mr-1" viewbox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.604-1.207A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.115 0-4.142-.657-5.846-1.893l-.42-.249-2.727.715.728-2.66-.274-.435A9.724 9.724 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z" />
+       </svg> Bantuan </a>
+     </div>
+    </div>
+   </div><!-- ADMIN PAGE -->
+   <div id="adminPage" class="hidden min-h-full p-4 md:p-6">
+    <div class="max-w-7xl mx-auto"><!-- Header -->
+     <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 rounded-xl accent-gradient flex items-center justify-center"><i data-lucide="shield" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h1 class="text-xl font-bold">Panel Admin</h1>
+        <p class="text-xs text-gray-400" id="adminName"></p>
+       </div>
+      </div><button onclick="logout()" class="text-gray-400 hover:text-white transition text-sm flex items-center gap-1"> <i data-lucide="log-out" class="w-4 h-4"></i> Keluar </button>
+     </div><!-- Stats -->
+     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6" id="adminStats">
+      <div class="glass rounded-xl p-4 text-center card-hover">
+       <div class="text-2xl font-bold text-indigo-400" id="statSiswa">
+        0
+       </div>
+       <div class="text-xs text-gray-400">
+        Siswa
+       </div>
+      </div>
+      <div class="glass rounded-xl p-4 text-center card-hover">
+       <div class="text-2xl font-bold text-purple-400" id="statGuru">
+        0
+       </div>
+       <div class="text-xs text-gray-400">
+        Guru
+       </div>
+      </div>
+      <div class="glass rounded-xl p-4 text-center card-hover">
+       <div class="text-2xl font-bold text-blue-400" id="statKelas">
+        0
+       </div>
+       <div class="text-xs text-gray-400">
+        Kelas
+       </div>
+      </div>
+      <div class="glass rounded-xl p-4 text-center card-hover">
+       <div class="text-2xl font-bold text-green-400" id="statKarya">
+        0
+       </div>
+       <div class="text-xs text-gray-400">
+        Karya
+       </div>
+      </div>
+      <div class="glass rounded-xl p-4 text-center card-hover">
+       <div class="text-2xl font-bold text-yellow-400" id="statTugas">
+        0
+       </div>
+       <div class="text-xs text-gray-400">
+        Tugas
+       </div>
+      </div>
+     </div><!-- Admin Tabs -->
+     <div class="flex gap-2 mb-4 overflow-x-auto pb-2"><button onclick="showAdminTab('users')" class="admin-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-indigo-600" data-tab="users">Manajemen User</button> <button onclick="showAdminTab('posts')" class="admin-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="posts">Semua Postingan</button> <button onclick="showAdminTab('sheet')" class="admin-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="sheet">Spreadsheet</button>
+     </div><!-- Admin: Users Tab -->
+     <div id="adminTabUsers" class="fade-in">
+      <div class="glass rounded-xl p-4 mb-4">
+       <h3 class="font-semibold mb-3">Tambah/Edit User</h3>
+       <div class="grid grid-cols-1 md:grid-cols-4 gap-3"><select id="adminUserRole" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm"> <option value="guru">Guru</option> <option value="siswa">Siswa</option> </select> <input id="adminUserName" type="text" placeholder="Nama" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm"> <input id="adminUserClass" type="text" placeholder="Kelas (opsional)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm"> <button onclick="adminAddUser()" class="accent-gradient rounded-lg p-2 text-sm font-semibold hover:opacity-90">Tambah &amp; Generate Kode</button>
+       </div>
+      </div>
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Daftar User</h3>
+       <div id="adminUserList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+      </div>
+     </div><!-- Admin: Posts Tab -->
+     <div id="adminTabPosts" class="hidden fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Semua Postingan</h3>
+       <div id="adminPostList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+      </div>
+     </div><!-- Admin: Sheet Tab -->
+     <div id="adminTabSheet" class="hidden fade-in">
+      <div class="glass rounded-xl p-4 text-center"><i data-lucide="table" class="w-12 h-12 mx-auto mb-3 text-indigo-400"></i>
+       <p class="mb-4 text-gray-300">Akses langsung ke Google Spreadsheet LMS</p><a href="https://docs.google.com/spreadsheets/d/1A9zJC2ROfRCNz6FRONTM00xr3Ez-3V74H1S_-dcwtG8/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 accent-gradient px-6 py-3 rounded-lg font-semibold hover:opacity-90"> <i data-lucide="external-link" class="w-4 h-4"></i> Buka Spreadsheet </a>
+      </div>
+     </div><!-- WhatsApp Admin -->
+     <div class="text-center mt-6"><a href="https://wa.me/6208813924881?text=Mohon%20dibantu%20untuk%20" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-xs text-gray-500 hover:text-green-400 transition">
+       <svg class="w-3 h-3 mr-1" viewbox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.604-1.207A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.115 0-4.142-.657-5.846-1.893l-.42-.249-2.727.715.728-2.66-.274-.435A9.724 9.724 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z" />
+       </svg> Bantuan </a>
+     </div>
+    </div>
+   </div><!-- GURU PAGE -->
+   <div id="guruPage" class="hidden min-h-full p-4 md:p-6">
+    <div class="max-w-7xl mx-auto"><!-- Header -->
+     <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center"><i data-lucide="book-open" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h1 class="text-xl font-bold">Panel Guru</h1>
+        <p class="text-xs text-gray-400" id="guruName"></p>
+       </div>
+      </div><button onclick="logout()" class="text-gray-400 hover:text-white transition text-sm flex items-center gap-1"> <i data-lucide="log-out" class="w-4 h-4"></i> Keluar </button>
+     </div><!-- Guru Tabs -->
+     <div class="flex gap-2 mb-4 overflow-x-auto pb-2"><button onclick="showGuruTab('progress')" class="guru-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-purple-600" data-tab="progress">Progress Siswa</button> <button onclick="showGuruTab('siswa')" class="guru-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="siswa">Kelola Siswa</button> <button onclick="showGuruTab('tugas')" class="guru-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="tugas">Tugas &amp; Materi</button> <button onclick="showGuruTab('quiz')" class="guru-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="quiz">Soal &amp; Quiz</button> <button onclick="showGuruTab('nilai')" class="guru-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="nilai">Penilaian</button> <button onclick="showGuruTab('sertifikat')" class="guru-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="sertifikat">Sertifikat</button>
+     </div><!-- Guru: Progress -->
+     <div id="guruTabProgress" class="fade-in">
+      <div class="glass rounded-xl p-4 mb-4">
+       <h3 class="font-semibold mb-3">Grafik Penyelesaian Tugas</h3>
+       <div id="guruProgressChart" class="space-y-3"></div>
+       <p class="text-xs text-gray-500 mt-3">Data progress pengumpulan tugas siswa</p>
+      </div>
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Riwayat Pengumpulan</h3>
+       <div id="guruSubmissionHistory" class="space-y-2 max-h-64 overflow-y-auto"></div>
+      </div>
+     </div><!-- Guru: Kelola Siswa -->
+     <div id="guruTabSiswa" class="hidden fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Tambah Siswa (bisa banyak sekaligus)</h3><textarea id="guruAddSiswaNames" placeholder="Masukkan nama siswa, satu per baris
+Contoh:
+Ahmad
+Budi
+Citra" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-sm h-32 resize-none"></textarea> <input id="guruAddSiswaClass" type="text" placeholder="Kelas (opsional)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm mt-2"> <button onclick="guruAddMultipleSiswa()" class="accent-gradient rounded-lg px-4 py-2 text-sm font-semibold mt-3 hover:opacity-90">Generate Kode &amp; Tambah</button>
+       <div id="guruSiswaList" class="mt-4 space-y-2 max-h-64 overflow-y-auto"></div>
+      </div>
+     </div><!-- Guru: Tugas & Materi -->
+     <div id="guruTabTugas" class="hidden fade-in">
+      <div class="glass rounded-xl p-4 mb-4">
+       <h3 class="font-semibold mb-3">Upload Tugas/Materi Baru</h3><input id="guruTugasTitle" type="text" placeholder="Judul tugas/materi" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm mb-2"> <textarea id="guruTugasContent" placeholder="Deskripsi tugas atau materi..." class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-sm h-24 resize-none mb-2"></textarea> <input id="guruTugasLink" type="text" placeholder="Link materi (opsional)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm mb-3">
+       <div class="flex gap-2 flex-wrap"><button onclick="guruGetAISuggestion()" class="bg-emerald-600 hover:bg-emerald-700 rounded-lg px-4 py-2 text-sm font-semibold transition">🤖 Saran AI</button> <button onclick="guruPostTugas()" class="accent-gradient rounded-lg px-4 py-2 text-sm font-semibold hover:opacity-90">Upload Tugas</button>
+       </div>
+       <div id="aiSuggestionBox" class="hidden mt-3 bg-slate-800 rounded-lg p-3 border border-emerald-600/30">
+        <p class="text-xs text-emerald-400 mb-2 font-semibold">💡 Saran AI:</p>
+        <div id="aiSuggestionContent" class="text-sm text-gray-300"></div><button onclick="useAISuggestion()" class="mt-2 bg-emerald-600 rounded px-3 py-1 text-xs hover:bg-emerald-700">Gunakan Saran AI</button>
+       </div>
+      </div>
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Daftar Tugas/Materi</h3>
+       <div id="guruTugasList" class="space-y-2 max-h-64 overflow-y-auto"></div>
+      </div>
+     </div><!-- Guru: Quiz -->
+     <div id="guruTabQuiz" class="hidden fade-in">
+      <div class="glass rounded-xl p-4 mb-4">
+       <h3 class="font-semibold mb-3">Generate Soal Otomatis (AI)</h3><input id="guruQuizTopic" type="text" placeholder="Tema soal, misal: Unity 3D, Blender basics..." class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm mb-3"> <button onclick="guruGenerateQuiz()" class="accent-gradient rounded-lg px-4 py-2 text-sm font-semibold hover:opacity-90">🤖 Generate 10 Soal Pilihan Ganda</button>
+      </div>
+      <div id="guruQuizPreview" class="hidden glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Preview Soal</h3>
+       <div id="guruQuizQuestions" class="space-y-4"></div><button onclick="guruApproveQuiz()" class="accent-gradient rounded-lg px-4 py-2 text-sm font-semibold mt-4 hover:opacity-90">✓ Setujui &amp; Kirim ke Siswa</button>
+      </div>
+     </div><!-- Guru: Penilaian -->
+     <div id="guruTabNilai" class="hidden fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Penilaian Siswa</h3>
+       <div id="guruNilaiList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+      </div>
+     </div><!-- Guru: Sertifikat -->
+     <div id="guruTabSertifikat" class="hidden fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Persetujuan Sertifikat Skill Passport</h3>
+       <div id="guruSertifikatList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+      </div>
+     </div><!-- WhatsApp Guru -->
+     <div class="text-center mt-6"><a href="https://wa.me/6208813924881?text=Mohon%20dibantu%20untuk%20" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-xs text-gray-500 hover:text-green-400 transition">
+       <svg class="w-3 h-3 mr-1" viewbox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.604-1.207A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.115 0-4.142-.657-5.846-1.893l-.42-.249-2.727.715.728-2.66-.274-.435A9.724 9.724 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z" />
+       </svg> Bantuan </a>
+     </div>
+    </div>
+   </div><!-- SISWA PAGE -->
+   <div id="siswaPage" class="hidden min-h-full p-4 md:p-6">
+    <div class="max-w-7xl mx-auto"><!-- Header -->
+     <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center"><i data-lucide="user" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h1 class="text-xl font-bold">Panel Siswa</h1>
+        <p class="text-xs text-gray-400" id="siswaName"></p>
+       </div>
+      </div><button onclick="logout()" class="text-gray-400 hover:text-white transition text-sm flex items-center gap-1"> <i data-lucide="log-out" class="w-4 h-4"></i> Keluar </button>
+     </div><!-- Siswa Tabs -->
+     <div class="flex gap-2 mb-4 overflow-x-auto pb-2"><button onclick="showSiswaTab('progress')" class="siswa-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-blue-600" data-tab="progress">Progress</button> <button onclick="showSiswaTab('materi')" class="siswa-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="materi">Materi &amp; Tugas</button> <button onclick="showSiswaTab('upload')" class="siswa-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="upload">Upload Karya</button> <button onclick="showSiswaTab('quiz')" class="siswa-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="quiz">Quiz</button> <button onclick="showSiswaTab('nilai')" class="siswa-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="nilai">Nilai &amp; Sertifikat</button> <button onclick="showSiswaTab('karya')" class="siswa-tab px-4 py-2 rounded-lg text-sm whitespace-nowrap bg-slate-700" data-tab="karya">Pamer Karya</button>
+     </div><!-- Siswa: Progress -->
+     <div id="siswaTabProgress" class="fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Grafik Progress Tugas</h3>
+       <div id="siswaProgressChart" class="space-y-3"></div>
+      </div>
+     </div><!-- Siswa: Materi -->
+     <div id="siswaTabMateri" class="hidden fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Materi &amp; Tugas dari Guru</h3>
+       <div id="siswaMateriList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+      </div>
+     </div><!-- Siswa: Upload -->
+     <div id="siswaTabUpload" class="hidden fade-in"><!-- Publication consent (only once) -->
+      <div id="consentBox" class="glass rounded-xl p-4 mb-4 border border-yellow-600/30">
+       <h3 class="font-semibold mb-2 text-yellow-400">⚠️ Persetujuan Publikasi</h3>
+       <p class="text-sm text-gray-300 mb-3">Dengan menyetujui, karya Anda dapat ditampilkan di galeri publik LMS Game San.</p><button onclick="siswaGiveConsent()" class="bg-yellow-600 hover:bg-yellow-700 rounded-lg px-4 py-2 text-sm font-semibold transition">Saya Setuju</button>
+      </div>
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Upload Link Karya</h3><input id="siswaKaryaTitle" type="text" placeholder="Judul karya" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm mb-2"> <input id="siswaKaryaLink" type="text" placeholder="Link (Google Drive, YouTube, GitHub, dll)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm mb-2"> <textarea id="siswaKaryaDesc" placeholder="Keterangan hasil karya..." class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-sm h-20 resize-none mb-2"></textarea>
+       <div class="flex gap-2 flex-wrap"><button onclick="siswaGetAISuggestion()" class="bg-emerald-600 hover:bg-emerald-700 rounded-lg px-4 py-2 text-sm font-semibold transition">🤖 Saran AI</button> <button onclick="siswaUploadKarya()" class="accent-gradient rounded-lg px-4 py-2 text-sm font-semibold hover:opacity-90">Upload</button>
+       </div>
+       <div id="siswaAISuggestionBox" class="hidden mt-3 bg-slate-800 rounded-lg p-3 border border-emerald-600/30">
+        <p class="text-xs text-emerald-400 mb-2 font-semibold">💡 Saran AI:</p>
+        <div id="siswaAISuggestionContent" class="text-sm text-gray-300"></div>
+       </div>
+      </div>
+      <div class="glass rounded-xl p-4 mt-4">
+       <h3 class="font-semibold mb-3">Karya Saya</h3>
+       <div id="siswaKaryaList" class="space-y-2 max-h-64 overflow-y-auto"></div>
+      </div>
+     </div><!-- Siswa: Quiz -->
+     <div id="siswaTabQuiz" class="hidden fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Quiz dari Guru</h3>
+       <div id="siswaQuizArea" class="space-y-4"></div>
+      </div>
+     </div><!-- Siswa: Nilai & Sertifikat -->
+     <div id="siswaTabNilai" class="hidden fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">Hasil Penilaian</h3>
+       <div id="siswaNilaiList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+      </div>
+     </div><!-- Siswa: Pamer Karya -->
+     <div id="siswaTabKarya" class="hidden fade-in">
+      <div class="glass rounded-xl p-4">
+       <h3 class="font-semibold mb-3">🏆 Galeri Karya Saya</h3>
+       <div id="siswaGaleriKarya" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+     </div><!-- WhatsApp Siswa -->
+     <div class="text-center mt-6"><a href="https://wa.me/6208813924881?text=Mohon%20dibantu%20untuk%20" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-xs text-gray-500 hover:text-green-400 transition">
+       <svg class="w-3 h-3 mr-1" viewbox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.604-1.207A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.115 0-4.142-.657-5.846-1.893l-.42-.249-2.727.715.728-2.66-.274-.435A9.724 9.724 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z" />
+       </svg> Bantuan </a>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+// ==================== STATE ====================
+let allData = [];
+let currentUser = null; // { role, name, code }
+let currentQuiz = null;
+let siswaAnswers = {};
+
+// ==================== GOOGLE SHEETS INTEGRATION ====================
+// Ganti URL ini dengan URL Web App dari Google Apps Script Anda
+// Cara: Buka Google Sheets > Extensions > Apps Script > Deploy > Web App > Copy URL
+const GOOGLE_SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_ID/exec";
+const SHEET_NAME = "LMSGameSan";
+
+// Fungsi kirim data ke Google Sheets via POST
+async function sendToGoogleSheets(data) {
+    try {
+        const payload = { sheetName: SHEET_NAME, ...data, timestamp: new Date().toISOString() };
+        await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+            method: "POST",
+            mode: "no-cors", // Google Apps Script memerlukan no-cors
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+    } catch (e) {
+        console.error("Gagal kirim ke Sheets:", e);
+    }
+}
+// Contoh Apps Script (tempel di Google Apps Script editor):
+// function doPost(e) {
+//   var sheet = SpreadsheetApp.openById("1A9zJC2ROfRCNz6FRONTM00xr3Ez-3V74H1S_-dcwtG8").getSheetByName("LMSGameSan");
+//   var data = JSON.parse(e.postData.contents);
+//   sheet.appendRow([data.timestamp, data.type, data.role, data.name, data.code, data.class_name, data.subject, data.content, data.link, data.status, data.score]);
+//   return ContentService.createTextOutput("OK");
+// }
+
+// ==================== DATA SDK ====================
+const dataHandler = {
+    onDataChanged(data) {
+        allData = data;
+        refreshUI();
+    }
+};
+
+async function initApp() {
+    const result = await window.dataSdk.init(dataHandler);
+    if (!result.isOk) showToast("Gagal memuat data", "error");
+}
+initApp();
+
+// ==================== TOAST ====================
+function showToast(msg, type = "success") {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = `toast toast-${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// ==================== AUTH ====================
+function generateCode() {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+function handleLogin() {
+    const role = document.getElementById("loginRole").value;
+    const name = document.getElementById("loginName").value.trim();
+    const code = document.getElementById("loginCode").value.trim();
+    const errEl = document.getElementById("loginError");
+
+    if (!name || !code) { errEl.textContent = "Nama dan kode harus diisi"; errEl.classList.remove("hidden"); return; }
+
+    // Admin default: admin/admin123
+    if (role === "admin" && name === "admin" && code === "admin123") {
+        currentUser = { role: "admin", name: "Admin" };
+        showPage("admin");
+        return;
+    }
+
+    // Find user in data
+    const user = allData.find(d => d.type === "user" && d.role === role && d.name === name && d.code === code);
+    if (user) {
+        currentUser = { role, name: user.name, code: user.code, class_name: user.class_name, __backendId: user.__backendId };
+        showPage(role);
+    } else {
+        errEl.textContent = "Nama atau kode salah"; errEl.classList.remove("hidden");
+    }
+}
+
+function logout() {
+    currentUser = null;
+    showPage("login");
+}
+
+function showPage(page) {
+    document.getElementById("loginPage").classList.toggle("hidden", page !== "login");
+    document.getElementById("adminPage").classList.toggle("hidden", page !== "admin");
+    document.getElementById("guruPage").classList.toggle("hidden", page !== "guru");
+    document.getElementById("siswaPage").classList.toggle("hidden", page !== "siswa");
+
+    if (page === "admin") { document.getElementById("adminName").textContent = currentUser.name; }
+    if (page === "guru") { document.getElementById("guruName").textContent = currentUser.name + " | Kode: " + currentUser.code; }
+    if (page === "siswa") { document.getElementById("siswaName").textContent = currentUser.name; }
+
+    refreshUI();
+    lucide.createIcons();
+}
+
+// ==================== REFRESH UI ====================
+function refreshUI() {
+    if (!currentUser) return;
+    if (currentUser.role === "admin") refreshAdmin();
+    if (currentUser.role === "guru") refreshGuru();
+    if (currentUser.role === "siswa") refreshSiswa();
+}
+
+// ==================== ADMIN ====================
+function refreshAdmin() {
+    const users = allData.filter(d => d.type === "user");
+    const siswa = users.filter(u => u.role === "siswa");
+    const guru = users.filter(u => u.role === "guru");
+    const karya = allData.filter(d => d.type === "karya");
+    const tugas = allData.filter(d => d.type === "tugas");
+    const classes = [...new Set(users.map(u => u.class_name).filter(Boolean))];
+
+    document.getElementById("statSiswa").textContent = siswa.length;
+    document.getElementById("statGuru").textContent = guru.length;
+    document.getElementById("statKelas").textContent = classes.length;
+    document.getElementById("statKarya").textContent = karya.length;
+    document.getElementById("statTugas").textContent = tugas.length;
+
+    // User list
+    const ul = document.getElementById("adminUserList");
+    ul.innerHTML = users.length === 0 ? '<p class="text-gray-500 text-sm">Belum ada user</p>' :
+        users.map(u => `<div class="flex items-center justify-between bg-slate-800 rounded-lg p-3">
+            <div><span class="text-xs px-2 py-0.5 rounded ${u.role === 'guru' ? 'bg-purple-600' : 'bg-blue-600'}">${u.role}</span> <span class="ml-2 font-medium">${u.name}</span> <span class="text-xs text-gray-400 ml-2">Kode: ${u.code}</span>${u.class_name ? `<span class="text-xs text-gray-500 ml-2">${u.class_name}</span>` : ''}</div>
+            <button onclick="adminDeleteUser('${u.__backendId}')" class="text-red-400 hover:text-red-300 text-xs">Hapus</button>
+        </div>`).join('');
+
+    // Posts list
+    const pl = document.getElementById("adminPostList");
+    const posts = allData.filter(d => d.type === "tugas" || d.type === "karya");
+    pl.innerHTML = posts.length === 0 ? '<p class="text-gray-500 text-sm">Belum ada postingan</p>' :
+        posts.map(p => `<div class="flex items-center justify-between bg-slate-800 rounded-lg p-3">
+            <div><span class="text-xs px-2 py-0.5 rounded ${p.type === 'tugas' ? 'bg-yellow-600' : 'bg-green-600'}">${p.type}</span> <span class="ml-2">${p.subject || p.content || ''}</span> <span class="text-xs text-gray-400 ml-2">oleh ${p.name}</span></div>
+            <button onclick="adminDeletePost('${p.__backendId}')" class="text-red-400 hover:text-red-300 text-xs">Hapus</button>
+        </div>`).join('');
+}
+
+function showAdminTab(tab) {
+    document.querySelectorAll('.admin-tab').forEach(b => b.className = b.className.replace('bg-indigo-600', 'bg-slate-700'));
+    document.querySelector(`.admin-tab[data-tab="${tab}"]`).className = document.querySelector(`.admin-tab[data-tab="${tab}"]`).className.replace('bg-slate-700', 'bg-indigo-600');
+    document.getElementById("adminTabUsers").classList.toggle("hidden", tab !== "users");
+    document.getElementById("adminTabPosts").classList.toggle("hidden", tab !== "posts");
+    document.getElementById("adminTabSheet").classList.toggle("hidden", tab !== "sheet");
+}
+
+async function adminAddUser() {
+    const role = document.getElementById("adminUserRole").value;
+    const name = document.getElementById("adminUserName").value.trim();
+    const cls = document.getElementById("adminUserClass").value.trim();
+    if (!name) { showToast("Nama harus diisi", "error"); return; }
+    if (allData.filter(d => d.type === "user").length >= 999) { showToast("Limit 999 user tercapai", "error"); return; }
+
+    const code = generateCode();
+    const record = { type: "user", role, name, code, class_name: cls, subject: "", content: "", link: "", status: "active", score: "", created_at: new Date().toISOString(), teacher_code: "", approved: false, publication_consent: false, certificate_approved: false, notes: "" };
+    const res = await window.dataSdk.create(record);
+    if (res.isOk) {
+        showToast(`${role} "${name}" ditambah. Kode: ${code}`);
+        sendToGoogleSheets(record);
+        document.getElementById("adminUserName").value = "";
+        document.getElementById("adminUserClass").value = "";
+    } else showToast("Gagal menambah user", "error");
+}
+
+async function adminDeleteUser(id) {
+    const record = allData.find(d => d.__backendId === id);
+    if (!record) return;
+    const res = await window.dataSdk.delete(record);
+    if (res.isOk) showToast("User dihapus");
+    else showToast("Gagal menghapus", "error");
+}
+
+async function adminDeletePost(id) {
+    const record = allData.find(d => d.__backendId === id);
+    if (!record) return;
+    const res = await window.dataSdk.delete(record);
+    if (res.isOk) showToast("Postingan dihapus");
+    else showToast("Gagal menghapus", "error");
+}
+
+// ==================== GURU ====================
+function refreshGuru() {
+    const mySiswa = allData.filter(d => d.type === "user" && d.role === "siswa" && d.teacher_code === currentUser.code);
+    const myTugas = allData.filter(d => d.type === "tugas" && d.name === currentUser.name);
+    const submissions = allData.filter(d => d.type === "karya" && d.teacher_code === currentUser.code);
+
+    // Progress chart
+    const chartEl = document.getElementById("guruProgressChart");
+    if (mySiswa.length === 0) {
+        chartEl.innerHTML = '<p class="text-gray-500 text-sm">Belum ada siswa terdaftar</p>';
+    } else {
+        chartEl.innerHTML = mySiswa.map(s => {
+            const completed = submissions.filter(sub => sub.name === s.name && sub.status === "dinilai").length;
+            const total = Math.max(myTugas.length, 1);
+            const pct = Math.round((completed / total) * 100);
+            return `<div><div class="flex justify-between text-sm mb-1"><span>${s.name}</span><span>${pct}%</span></div><div class="w-full bg-slate-700 rounded-full h-3"><div class="h-3 rounded-full accent-gradient" style="width:${pct}%"></div></div></div>`;
+        }).join('');
+    }
+
+    // Submission history
+    const histEl = document.getElementById("guruSubmissionHistory");
+    histEl.innerHTML = submissions.length === 0 ? '<p class="text-gray-500 text-sm">Belum ada pengumpulan</p>' :
+        submissions.map(s => `<div class="bg-slate-800 rounded-lg p-2 text-sm"><span class="font-medium">${s.name}</span> mengumpulkan <span class="text-indigo-400">${s.subject}</span> <span class="text-xs text-gray-500">${new Date(s.created_at).toLocaleString('id')}</span></div>`).join('');
+
+    // Siswa list
+    const slEl = document.getElementById("guruSiswaList");
+    slEl.innerHTML = mySiswa.length === 0 ? '<p class="text-gray-500 text-sm">Belum ada siswa</p>' :
+        mySiswa.map(s => `<div class="bg-slate-800 rounded-lg p-2 text-sm flex justify-between"><span>${s.name} <span class="text-xs text-gray-400">Kode: ${s.code}</span></span><span class="text-xs text-gray-500">${s.class_name || ''}</span></div>`).join('');
+
+    // Tugas list
+    const tlEl = document.getElementById("guruTugasList");
+    tlEl.innerHTML = myTugas.length === 0 ? '<p class="text-gray-500 text-sm">Belum ada tugas</p>' :
+        myTugas.map(t => `<div class="bg-slate-800 rounded-lg p-3"><div class="font-medium">${t.subject}</div><div class="text-xs text-gray-400 mt-1">${t.content}</div>${t.link ? `<a href="${t.link}" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-400 hover:underline mt-1 inline-block">🔗 Link Materi</a>` : ''}</div>`).join('');
+
+    // Penilaian
+    const nlEl = document.getElementById("guruNilaiList");
+    const pendingNilai = submissions.filter(s => s.status !== "dinilai");
+    nlEl.innerHTML = pendingNilai.length === 0 ? '<p class="text-gray-500 text-sm">Semua sudah dinilai</p>' :
+        pendingNilai.map(s => `<div class="bg-slate-800 rounded-lg p-3">
+            <div class="flex justify-between items-center"><span class="font-medium">${s.name}</span><span class="text-xs text-gray-400">${s.subject}</span></div>
+            ${s.link ? `<a href="${s.link}" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-400 hover:underline">Lihat Karya</a>` : ''}
+            <div class="flex gap-2 mt-2"><input type="number" min="0" max="100" placeholder="Nilai" class="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-sm w-20" id="score_${s.__backendId}">
+            <button onclick="guruGiveScore('${s.__backendId}')" class="bg-green-600 hover:bg-green-700 rounded px-3 py-1 text-xs">Beri Nilai</button></div>
+        </div>`).join('');
+
+    // Sertifikat
+    const certEl = document.getElementById("guruSertifikatList");
+    const completedSubs = submissions.filter(s => s.status === "dinilai" && !s.certificate_approved);
+    certEl.innerHTML = completedSubs.length === 0 ? '<p class="text-gray-500 text-sm">Tidak ada yang menunggu sertifikat</p>' :
+        completedSubs.map(s => `<div class="bg-slate-800 rounded-lg p-3">
+            <div class="flex justify-between"><span class="font-medium">${s.name}</span><span class="text-indigo-400">${s.subject}</span></div>
+            <div class="flex gap-2 mt-2"><input type="text" placeholder="Catatan (opsional)" class="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-sm flex-1" id="cert_note_${s.__backendId}">
+            <button onclick="guruApproveCert('${s.__backendId}')" class="bg-emerald-600 hover:bg-emerald-700 rounded px-3 py-1 text-xs">✓ Setujui Sertifikat</button></div>
+        </div>`).join('');
+}
+
+function showGuruTab(tab) {
+    document.querySelectorAll('.guru-tab').forEach(b => b.className = b.className.replace('bg-purple-600', 'bg-slate-700'));
+    document.querySelector(`.guru-tab[data-tab="${tab}"]`).className = document.querySelector(`.guru-tab[data-tab="${tab}"]`).className.replace('bg-slate-700', 'bg-purple-600');
+    ['progress','siswa','tugas','quiz','nilai','sertifikat'].forEach(t => {
+        document.getElementById(`guruTab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.toggle("hidden", t !== tab);
+    });
+}
+
+async function guruAddMultipleSiswa() {
+    const names = document.getElementById("guruAddSiswaNames").value.trim().split("\n").map(n => n.trim()).filter(Boolean);
+    const cls = document.getElementById("guruAddSiswaClass").value.trim();
+    if (names.length === 0) { showToast("Masukkan minimal satu nama", "error"); return; }
+
+    for (const name of names) {
+        if (allData.filter(d => d.type === "user").length >= 999) { showToast("Limit 999 tercapai", "error"); break; }
+        const code = generateCode();
+        const record = { type: "user", role: "siswa", name, code, class_name: cls, subject: "", content: "", link: "", status: "active", score: "", created_at: new Date().toISOString(), teacher_code: currentUser.code, approved: false, publication_consent: false, certificate_approved: false, notes: "" };
+        await window.dataSdk.create(record);
+        sendToGoogleSheets(record);
+    }
+    showToast(`${names.length} siswa ditambahkan`);
+    document.getElementById("guruAddSiswaNames").value = "";
+}
+
+// AI Suggestions for Guru
+function guruGetAISuggestion() {
+    const title = document.getElementById("guruTugasTitle").value.trim().toLowerCase();
+    const content = document.getElementById("guruTugasContent").value.trim().toLowerCase();
+    const keywords = title + " " + content;
+
+    let suggestions = [];
+    // Resource mapping berdasarkan keyword
+    const resourceMap = {
+        "unity": { name: "Unity Learn", url: "https://learn.unity.com", desc: "Platform resmi belajar Unity 3D" },
+        "blender": { name: "Blender Learn", url: "https://www.blender.org/learn/", desc: "Tutorial resmi Blender 3D modeling" },
+        "c#": { name: "Microsoft C# Docs", url: "https://docs.microsoft.com/en-us/dotnet/csharp/", desc: "Dokumentasi resmi C#" },
+        "csharp": { name: "Microsoft C# Docs", url: "https://docs.microsoft.com/en-us/dotnet/csharp/", desc: "Dokumentasi resmi C#" },
+        "godot": { name: "Godot Docs", url: "https://docs.godotengine.org", desc: "Dokumentasi resmi Godot Engine" },
+        "unreal": { name: "Unreal Engine Learn", url: "https://www.unrealengine.com/learn", desc: "Tutorial Unreal Engine" },
+        "game design": { name: "Game Design Document", url: "https://www.gamedesigndocument.org", desc: "Panduan membuat GDD" },
+        "pixel": { name: "Aseprite (Pixel Art)", url: "https://www.aseprite.org", desc: "Tool pixel art terbaik" },
+        "animasi": { name: "YouTube - Animation Tutorial", url: "https://www.youtube.com/results?search_query=animation+tutorial+beginner", desc: "Tutorial animasi di YouTube" },
+        "modeling": { name: "YouTube - 3D Modeling", url: "https://www.youtube.com/results?search_query=3d+modeling+tutorial+beginner", desc: "Tutorial 3D modeling" },
+        "programming": { name: "YouTube - Game Programming", url: "https://www.youtube.com/results?search_query=game+programming+tutorial", desc: "Tutorial programming game" },
+        "desain": { name: "YouTube - Game Design", url: "https://www.youtube.com/results?search_query=game+design+tutorial+indonesia", desc: "Tutorial game design" },
+        "rpg": { name: "YouTube - RPG Maker", url: "https://www.youtube.com/results?search_query=rpg+maker+tutorial", desc: "Tutorial membuat RPG" },
+        "2d": { name: "YouTube - 2D Game Dev", url: "https://www.youtube.com/results?search_query=2d+game+development+tutorial", desc: "Tutorial game 2D" },
+        "3d": { name: "YouTube - 3D Game Dev", url: "https://www.youtube.com/results?search_query=3d+game+development+tutorial", desc: "Tutorial game 3D" },
+        "musik": { name: "YouTube - Game Music", url: "https://www.youtube.com/results?search_query=game+music+composition+tutorial", desc: "Tutorial membuat musik game" },
+        "sound": { name: "YouTube - Sound Design", url: "https://www.youtube.com/results?search_query=game+sound+design+tutorial", desc: "Tutorial sound design" }
+    };
+
+    for (const [key, val] of Object.entries(resourceMap)) {
+        if (keywords.includes(key)) suggestions.push(val);
+    }
+
+    if (suggestions.length === 0) {
+        suggestions.push({ name: "YouTube Search", url: `https://www.youtube.com/results?search_query=${encodeURIComponent(title || 'game development tutorial')}`, desc: "Cari tutorial terkait di YouTube" });
+        suggestions.push({ name: "Unity Learn", url: "https://learn.unity.com", desc: "Platform belajar game development" });
+    }
+
+    // Generate AI-like suggestions
+    const aiText = `<p class="mb-2"><strong>Rekomendasi Materi:</strong></p>
+        ${suggestions.map(s => `<div class="mb-2">📌 <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:underline">${s.name}</a> - ${s.desc}</div>`).join('')}
+        <p class="mt-2 text-xs text-gray-400">💡 Tips: Berikan tugas bertahap dari dasar hingga proyek akhir. Siswa belajar lebih baik dengan project-based learning.</p>`;
+
+    document.getElementById("aiSuggestionBox").classList.remove("hidden");
+    document.getElementById("aiSuggestionContent").innerHTML = aiText;
+}
+
+function useAISuggestion() {
+    const links = document.getElementById("aiSuggestionContent").querySelectorAll("a");
+    if (links.length > 0) {
+        document.getElementById("guruTugasLink").value = links[0].href;
+    }
+    showToast("Link saran AI diterapkan");
+}
+
+async function guruPostTugas() {
+    const title = document.getElementById("guruTugasTitle").value.trim();
+    const content = document.getElementById("guruTugasContent").value.trim();
+    const link = document.getElementById("guruTugasLink").value.trim();
+    if (!title) { showToast("Judul harus diisi", "error"); return; }
+
+    const record = { type: "tugas", role: "guru", name: currentUser.name, code: currentUser.code, class_name: "", subject: title, content, link, status: "active", score: "", created_at: new Date().toISOString(), teacher_code: currentUser.code, approved: false, publication_consent: false, certificate_approved: false, notes: "" };
+    const res = await window.dataSdk.create(record);
+    if (res.isOk) {
+        showToast("Tugas berhasil diupload");
+        sendToGoogleSheets(record);
+        document.getElementById("guruTugasTitle").value = "";
+        document.getElementById("guruTugasContent").value = "";
+        document.getElementById("guruTugasLink").value = "";
+        document.getElementById("aiSuggestionBox").classList.add("hidden");
+    } else showToast("Gagal upload tugas", "error");
+}
+
+// Quiz generation (AI-simulated)
+function guruGenerateQuiz() {
+    const topic = document.getElementById("guruQuizTopic").value.trim();
+    if (!topic) { showToast("Masukkan tema soal", "error"); return; }
+
+    // Simulated quiz generation based on topic
+    const quizTemplates = {
+        default: [
+            { q: `Apa pengertian dasar dari ${topic}?`, opts: ["Sebuah framework", "Sebuah konsep dalam pengembangan game", "Sebuah bahasa pemrograman", "Sebuah sistem operasi"], answer: 1 },
+            { q: `Tool utama yang digunakan untuk ${topic} adalah?`, opts: ["Microsoft Word", "Software khusus terkait", "Calculator", "Notepad"], answer: 1 },
+            { q: `Langkah pertama dalam mempelajari ${topic}?`, opts: ["Langsung membuat proyek besar", "Memahami dasar-dasarnya terlebih dahulu", "Mengabaikan dokumentasi", "Menghafal semua kode"], answer: 1 },
+            { q: `Keuntungan utama menggunakan ${topic}?`, opts: ["Tidak ada keuntungan", "Meningkatkan produktivitas dan kualitas", "Membuat komputer lambat", "Hanya untuk profesional"], answer: 1 },
+            { q: `Format file yang umum digunakan dalam ${topic}?`, opts: [".txt", "Format khusus sesuai software", ".mp3", ".pdf"], answer: 1 },
+            { q: `Siapa yang dapat mempelajari ${topic}?`, opts: ["Hanya programmer", "Siapa saja yang berminat", "Hanya orang dewasa", "Hanya lulusan IT"], answer: 1 },
+            { q: `Apa yang dibutuhkan untuk memulai ${topic}?`, opts: ["Komputer super mahal", "Komputer standar dan koneksi internet", "Tidak perlu apa-apa", "Hanya smartphone"], answer: 1 },
+            { q: `Best practice dalam ${topic} adalah?`, opts: ["Bekerja tanpa rencana", "Membuat dokumentasi dan iterasi bertahap", "Mengcopy pekerjaan orang lain", "Tidak perlu testing"], answer: 1 },
+            { q: `Komunitas ${topic} biasanya ditemukan di?`, opts: ["Tidak ada komunitas", "Forum online, Discord, dan GitHub", "Hanya di universitas", "Hanya di perusahaan besar"], answer: 1 },
+            { q: `Masa depan ${topic} dalam industri game?`, opts: ["Tidak ada masa depan", "Sangat menjanjikan dan terus berkembang", "Sudah tidak relevan", "Hanya tren sesaat"], answer: 1 }
+        ]
+    };
+
+    currentQuiz = { topic, questions: quizTemplates.default };
+    const previewEl = document.getElementById("guruQuizPreview");
+    previewEl.classList.remove("hidden");
+    const qEl = document.getElementById("guruQuizQuestions");
+    qEl.innerHTML = currentQuiz.questions.map((q, i) => `<div class="bg-slate-800 rounded-lg p-3">
+        <p class="font-medium text-sm mb-2">${i + 1}. ${q.q}</p>
+        ${q.opts.map((o, j) => `<div class="text-xs ml-3 ${j === q.answer ? 'text-green-400' : 'text-gray-400'}">${String.fromCharCode(65 + j)}. ${o} ${j === q.answer ? '✓' : ''}</div>`).join('')}
+    </div>`).join('');
+}
+
+async function guruApproveQuiz() {
+    if (!currentQuiz) return;
+    const record = { type: "quiz", role: "guru", name: currentUser.name, code: currentUser.code, class_name: "", subject: currentQuiz.topic, content: JSON.stringify(currentQuiz.questions), link: "", status: "active", score: "", created_at: new Date().toISOString(), teacher_code: currentUser.code, approved: true, publication_consent: false, certificate_approved: false, notes: "" };
+    const res = await window.dataSdk.create(record);
+    if (res.isOk) {
+        showToast("Quiz disetujui dan dikirim ke siswa");
+        sendToGoogleSheets({ ...record, content: `Quiz: ${currentQuiz.topic} (10 soal)` });
+        document.getElementById("guruQuizPreview").classList.add("hidden");
+        document.getElementById("guruQuizTopic").value = "";
+        currentQuiz = null;
+    } else showToast("Gagal menyimpan quiz", "error");
+}
+
+async function guruGiveScore(id) {
+    const scoreInput = document.getElementById(`score_${id}`);
+    const score = scoreInput ? scoreInput.value : "";
+    if (!score) { showToast("Masukkan nilai", "error"); return; }
+    const record = allData.find(d => d.__backendId === id);
+    if (!record) return;
+    const updated = { ...record, score, status: "dinilai" };
+    const res = await window.dataSdk.update(updated);
+    if (res.isOk) { showToast(`Nilai ${score} diberikan`); sendToGoogleSheets(updated); }
+    else showToast("Gagal memberi nilai", "error");
+}
+
+async function guruApproveCert(id) {
+    const noteInput = document.getElementById(`cert_note_${id}`);
+    const notes = noteInput ? noteInput.value.trim() : "";
+    const record = allData.find(d => d.__backendId === id);
+    if (!record) return;
+    const updated = { ...record, certificate_approved: true, notes: notes || `Selamat atas selesainya tugas "${record.subject}"! 🎉` };
+    const res = await window.dataSdk.update(updated);
+    if (res.isOk) { showToast("Sertifikat disetujui! 🎉"); sendToGoogleSheets(updated); }
+    else showToast("Gagal menyetujui sertifikat", "error");
+}
+
+// ==================== SISWA ====================
+function refreshSiswa() {
+    if (!currentUser) return;
+    const myKarya = allData.filter(d => d.type === "karya" && d.name === currentUser.name);
+    const myTugas = allData.filter(d => d.type === "tugas" && d.teacher_code === currentUser.teacher_code);
+    const myQuiz = allData.filter(d => d.type === "quiz" && d.teacher_code === currentUser.teacher_code && d.approved);
+
+    // Check consent
+    const hasConsent = allData.find(d => d.type === "user" && d.name === currentUser.name && d.publication_consent);
+    if (hasConsent) document.getElementById("consentBox").classList.add("hidden");
+    else document.getElementById("consentBox").classList.remove("hidden");
+
+    // Progress
+    const progressEl = document.getElementById("siswaProgressChart");
+    const totalTugas = myTugas.length || 1;
+    const completedTugas = myKarya.filter(k => k.status === "dinilai").length;
+    const pct = Math.round((completedTugas / totalTugas) * 100);
+    progressEl.innerHTML = `<div><div class="flex justify-between text-sm mb-1"><span>Tugas Selesai</span><span>${completedTugas}/${myTugas.length}</span></div><div class="w-full bg-slate-700 rounded-full h-4"><div class="h-4 rounded-full accent-gradient flex items-center justify-center text-xs" style="width:${pct}%">${pct}%</div></div></div>`;
+
+    // Materi
+    const matEl = document.getElementById("siswaMateriList");
+    matEl.innerHTML = myTugas.length === 0 ? '<p class="text-gray-500 text-sm">Belum ada materi dari guru</p>' :
+        myTugas.map(t => `<div class="bg-slate-800 rounded-lg p-3"><div class="font-medium">${t.subject}</div><div class="text-xs text-gray-400 mt-1">${t.content}</div>${t.link ? `<a href="${t.link}" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-400 hover:underline mt-1 inline-block">🔗 Buka Materi</a>` : ''}</div>`).join('');
+
+    // Karya list
+    const kEl = document.getElementById("siswaKaryaList");
+    kEl.innerHTML = myKarya.length === 0 ? '<p class="text-gray-500 text-sm">Belum ada karya diupload</p>' :
+        myKarya.map(k => `<div class="bg-slate-800 rounded-lg p-3"><div class="font-medium">${k.subject}</div><div class="text-xs text-gray-400">${k.content}</div>
+            <div class="flex gap-2 mt-2">${k.link ? `<a href="${k.link}" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-400 hover:underline">🔗 Buka</a>` : ''}${k.link ? `<a href="${k.link}" target="_blank" rel="noopener noreferrer" download class="text-xs text-green-400 hover:underline">⬇ Download</a>` : ''}</div>
+            <div class="text-xs mt-1 ${k.status === 'dinilai' ? 'text-green-400' : 'text-yellow-400'}">${k.status === 'dinilai' ? `✓ Dinilai: ${k.score}` : '⏳ Menunggu penilaian'}</div>
+        </div>`).join('');
+
+    // Quiz
+    const quizEl = document.getElementById("siswaQuizArea");
+    const answeredQuizIds = allData.filter(d => d.type === "quiz_answer" && d.name === currentUser.name).map(d => d.subject);
+    const availableQuiz = myQuiz.filter(q => !answeredQuizIds.includes(q.subject + q.created_at));
+    if (availableQuiz.length === 0) {
+        quizEl.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada quiz tersedia</p>';
+    } else {
+        const quiz = availableQuiz[0];
+        try {
+            const questions = JSON.parse(quiz.content);
+            quizEl.innerHTML = `<h4 class="font-medium mb-3">📝 Quiz: ${quiz.subject}</h4>` +
+                questions.map((q, i) => `<div class="bg-slate-800 rounded-lg p-3 mb-2">
+                    <p class="text-sm font-medium mb-2">${i + 1}. ${q.q}</p>
+                    ${q.opts.map((o, j) => `<div class="quiz-option border border-slate-600 rounded p-2 mb-1 text-sm ${siswaAnswers[i] === j ? 'selected' : ''}" onclick="selectAnswer(${i}, ${j})">${String.fromCharCode(65 + j)}. ${o}</div>`).join('')}
+                </div>`).join('') +
+                `<button onclick="siswaSubmitQuiz('${quiz.__backendId}')" class="accent-gradient rounded-lg px-4 py-2 text-sm font-semibold mt-2 hover:opacity-90">Kirim Jawaban</button>`;
+        } catch (e) { quizEl.innerHTML = '<p class="text-gray-500 text-sm">Error memuat quiz</p>'; }
+    }
+
+    // Nilai & Sertifikat
+    const nilaiEl = document.getElementById("siswaNilaiList");
+    const dinilai = myKarya.filter(k => k.status === "dinilai");
+    nilaiEl.innerHTML = dinilai.length === 0 ? '<p class="text-gray-500 text-sm">Belum ada penilaian</p>' :
+        dinilai.map(k => `<div class="bg-slate-800 rounded-lg p-3">
+            <div class="flex justify-between"><span class="font-medium">${k.subject}</span><span class="text-green-400 font-bold">${k.score}</span></div>
+            ${k.certificate_approved ? `<div class="mt-2"><span class="text-xs text-emerald-400">🏆 Sertifikat Tersedia</span><p class="text-xs text-gray-400 mt-1">${k.notes || 'Selamat!'}</p><button onclick="downloadCertificate('${k.subject}','${k.score}','${k.notes || ''}')" class="mt-2 bg-emerald-600 hover:bg-emerald-700 rounded px-3 py-1 text-xs">⬇ Download Sertifikat</button></div>` : '<p class="text-xs text-gray-500 mt-1">Menunggu persetujuan sertifikat</p>'}
+        </div>`).join('');
+
+    // Galeri Karya
+    const galeriEl = document.getElementById("siswaGaleriKarya");
+    galeriEl.innerHTML = myKarya.length === 0 ? '<p class="text-gray-500 text-sm col-span-2">Belum ada karya</p>' :
+        myKarya.map(k => `<div class="bg-slate-800 rounded-xl p-4 card-hover">
+            <div class="text-lg mb-1">🎮</div>
+            <h4 class="font-semibold text-sm">${k.subject}</h4>
+            <p class="text-xs text-gray-400 mt-1">${k.content}</p>
+            ${k.link ? `<a href="${k.link}" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-400 hover:underline mt-2 inline-block">🔗 Lihat Karya</a>` : ''}
+            ${k.status === 'dinilai' ? `<div class="text-xs text-green-400 mt-1">⭐ Nilai: ${k.score}</div>` : ''}
+        </div>`).join('');
+}
+
+function showSiswaTab(tab) {
+    document.querySelectorAll('.siswa-tab').forEach(b => b.className = b.className.replace('bg-blue-600', 'bg-slate-700'));
+    document.querySelector(`.siswa-tab[data-tab="${tab}"]`).className = document.querySelector(`.siswa-tab[data-tab="${tab}"]`).className.replace('bg-slate-700', 'bg-blue-600');
+    ['progress','materi','upload','quiz','nilai','karya'].forEach(t => {
+        const el = document.getElementById(`siswaTab${t.charAt(0).toUpperCase()+t.slice(1)}`);
+        if (el) el.classList.toggle("hidden", t !== tab);
+    });
+}
+
+function selectAnswer(qIndex, optIndex) {
+    siswaAnswers[qIndex] = optIndex;
+    refreshSiswa();
+}
+
+async function siswaSubmitQuiz(quizId) {
+    const quiz = allData.find(d => d.__backendId === quizId);
+    if (!quiz) return;
+    let questions;
+    try { questions = JSON.parse(quiz.content); } catch (e) { return; }
+
+    let correct = 0;
+    questions.forEach((q, i) => { if (siswaAnswers[i] === q.answer) correct++; });
+    const score = `${correct * 10}/100`;
+
+    const record = { type: "quiz_answer", role: "siswa", name: currentUser.name, code: currentUser.code, class_name: currentUser.class_name || "", subject: quiz.subject + quiz.created_at, content: JSON.stringify(siswaAnswers), link: "", status: "dinilai", score, created_at: new Date().toISOString(), teacher_code: currentUser.teacher_code || "", approved: false, publication_consent: false, certificate_approved: false, notes: "" };
+    const res = await window.dataSdk.create(record);
+    if (res.isOk) {
+        showToast(`Quiz selesai! Skor: ${score}`);
+        sendToGoogleSheets(record);
+        siswaAnswers = {};
+    } else showToast("Gagal mengirim jawaban", "error");
+}
+
+async function siswaGiveConsent() {
+    const user = allData.find(d => d.type === "user" && d.name === currentUser.name);
+    if (!user) return;
+    const updated = { ...user, publication_consent: true };
+    const res = await window.dataSdk.update(updated);
+    if (res.isOk) showToast("Persetujuan publikasi diberikan ✓");
+    else showToast("Gagal menyimpan persetujuan", "error");
+}
+
+async function siswaUploadKarya() {
+    const title = document.getElementById("siswaKaryaTitle").value.trim();
+    const link = document.getElementById("siswaKaryaLink").value.trim();
+    const desc = document.getElementById("siswaKaryaDesc").value.trim();
+    if (!title || !link) { showToast("Judul dan link harus diisi", "error"); return; }
+
+    const record = { type: "karya", role: "siswa", name: currentUser.name, code: currentUser.code, class_name: currentUser.class_name || "", subject: title, content: desc, link, status: "menunggu", score: "", created_at: new Date().toISOString(), teacher_code: currentUser.teacher_code || "", approved: false, publication_consent: false, certificate_approved: false, notes: "" };
+    const res = await window.dataSdk.create(record);
+    if (res.isOk) {
+        showToast("Karya berhasil diupload! 🎉");
+        sendToGoogleSheets(record);
+        document.getElementById("siswaKaryaTitle").value = "";
+        document.getElementById("siswaKaryaLink").value = "";
+        document.getElementById("siswaKaryaDesc").value = "";
+        document.getElementById("siswaAISuggestionBox").classList.add("hidden");
+    } else showToast("Gagal upload karya", "error");
+}
+
+function siswaGetAISuggestion() {
+    const title = document.getElementById("siswaKaryaTitle").value.trim();
+    const desc = document.getElementById("siswaKaryaDesc").value.trim();
+    const context = (title + " " + desc).toLowerCase();
+
+    let suggestions = [];
+    if (context.includes("poster")) suggestions.push("💡 Coba gunakan prinsip visual hierarchy: judul besar di atas, elemen pendukung lebih kecil. Gunakan maksimal 3 warna utama.");
+    if (context.includes("game")) suggestions.push("💡 Pastikan game memiliki core loop yang jelas: aksi → reward → peningkatan. Tambahkan tutorial singkat di awal.");
+    if (context.includes("video") || context.includes("youtube")) suggestions.push("💡 Hook penonton di 5 detik pertama. Tambahkan thumbnail menarik dan deskripsi yang jelas.");
+    if (context.includes("web") || context.includes("github")) suggestions.push("💡 Pastikan README.md lengkap dengan screenshot, cara install, dan cara penggunaan.");
+    if (context.includes("animasi") || context.includes("animation")) suggestions.push("💡 Gunakan prinsip 12 animasi dasar Disney. Focus pada timing dan spacing yang natural.");
+
+    if (suggestions.length === 0) suggestions.push("💡 Jelaskan proses pembuatan karya Anda: tools yang digunakan, tantangan yang dihadapi, dan solusi yang ditemukan. Ini menunjukkan growth mindset!");
+
+    suggestions.push("📝 Tambahkan konteks: apa tujuan karya ini, siapa target audiens, dan apa yang ingin Anda pelajari dari proses ini.");
+
+    document.getElementById("siswaAISuggestionBox").classList.remove("hidden");
+    document.getElementById("siswaAISuggestionContent").innerHTML = suggestions.join("<br><br>");
+}
+
+function downloadCertificate(subject, score, notes) {
+    // Generate simple certificate as downloadable HTML
+    const certHTML = `<!DOCTYPE html><html><head><title>Skill Passport Certificate</title><style>body{font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f5f5;margin:0}
+    .cert{background:white;border:3px solid #6366f1;padding:60px;text-align:center;max-width:700px;box-shadow:0 10px 40px rgba(0,0,0,0.1)}
+    h1{color:#6366f1;font-size:2em;margin-bottom:10px}h2{color:#333;font-size:1.5em}
+    .name{font-size:1.8em;color:#1e293b;margin:20px 0;font-weight:bold}
+    .details{color:#666;margin:15px 0}.badge{display:inline-block;background:#6366f1;color:white;padding:8px 20px;border-radius:20px;margin-top:20px}</style></head>
+    <body><div class="cert"><h1>🏆 Skill Passport</h1><h2>Sertifikat Penyelesaian</h2>
+    <div class="name">${currentUser.name}</div>
+    <div class="details">Telah menyelesaikan tugas:<br><strong>${subject}</strong></div>
+    <div class="details">Nilai: <strong>${score}</strong></div>
+    ${notes ? `<div class="details" style="font-style:italic">"${notes}"</div>` : ''}
+    <div class="badge">LMS Game San - Skill Verified</div>
+    <div class="details" style="margin-top:30px;font-size:0.8em">Tanggal: ${new Date().toLocaleDateString('id')}</div></div></body></html>`;
+
+    const blob = new Blob([certHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Sertifikat_${subject.replace(/\s+/g, '_')}_${currentUser.name}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Sertifikat didownload! 🎉");
+}
+
+// ==================== ELEMENT SDK ====================
+const defaultConfig = {
+    site_title: "LMS Game San",
+    welcome_text: "Selamat Datang di LMS Game San",
+    background_color: "#0f172a",
+    surface_color: "#1e293b",
+    text_color: "#f1f5f9",
+    primary_color: "#6366f1",
+    secondary_color: "#8b5cf6",
+    font_family: "Space Grotesk",
+    font_size: 16
+};
+
+window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (config) => {
+        const title = config.site_title || defaultConfig.site_title;
+        const welcome = config.welcome_text || defaultConfig.welcome_text;
+        const bgColor = config.background_color || defaultConfig.background_color;
+        const surfaceColor = config.surface_color || defaultConfig.surface_color;
+        const textColor = config.text_color || defaultConfig.text_color;
+        const primaryColor = config.primary_color || defaultConfig.primary_color;
+        const font = config.font_family || defaultConfig.font_family;
+        const fontSize = config.font_size || defaultConfig.font_size;
+
+        document.getElementById("siteTitle").textContent = title;
+        document.getElementById("welcomeText").textContent = welcome;
+        document.querySelector('.app-wrapper').style.background = `linear-gradient(135deg, ${bgColor} 0%, ${surfaceColor} 50%, ${bgColor} 100%)`;
+        document.querySelector('.app-wrapper').style.color = textColor;
+        document.querySelector('.app-wrapper').style.fontFamily = `${font}, sans-serif`;
+        document.querySelector('.app-wrapper').style.fontSize = `${fontSize}px`;
+    },
+    mapToCapabilities: (config) => ({
+        recolorables: [
+            { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+            { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+            { get: () => config.primary_color || defaultConfig.primary_color, set: (v) => { config.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); } },
+            { get: () => config.secondary_color || defaultConfig.secondary_color, set: (v) => { config.secondary_color = v; window.elementSdk.setConfig({ secondary_color: v }); } }
+        ],
+        borderables: [],
+        fontEditable: { get: () => config.font_family || defaultConfig.font_family, set: (v) => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); } },
+        fontSizeable: { get: () => config.font_size || defaultConfig.font_size, set: (v) => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); } }
+    }),
+    mapToEditPanelValues: (config) => new Map([
+        ["site_title", config.site_title || defaultConfig.site_title],
+        ["welcome_text", config.welcome_text || defaultConfig.welcome_text]
+    ])
+});
+
+// Init icons
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a05e6ba0deb280f7',t:'MTc4MDQ4Njc5OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+                                     </html>
