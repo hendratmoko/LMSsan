@@ -1,0 +1,41 @@
+function applyConfig(config) {
+    document.body.style.setProperty('--bg', config.background_color || defaultConfig.background_color);
+    document.body.style.setProperty('--surface', config.surface_color || defaultConfig.surface_color);
+    document.body.style.setProperty('--text', config.text_color || defaultConfig.text_color);
+    document.body.style.setProperty('--primary', config.primary_action_color || defaultConfig.primary_action_color);
+    document.body.style.setProperty('--secondary', config.secondary_action_color || defaultConfig.secondary_action_color);
+}
+
+if (window.elementSdk) {
+    window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => { applyConfig(config); },
+        mapToCapabilities: (config) => ({
+            recolorables: [
+                { get:()=>config.background_color||defaultConfig.background_color, set:(v)=>{config.background_color=v;window.elementSdk.setConfig({background_color:v});} },
+                { get:()=>config.surface_color||defaultConfig.surface_color, set:(v)=>{config.surface_color=v;window.elementSdk.setConfig({surface_color:v});} },
+                { get:()=>config.text_color||defaultConfig.text_color, set:(v)=>{config.text_color=v;window.elementSdk.setConfig({text_color:v});} },
+                { get:()=>config.primary_action_color||defaultConfig.primary_action_color, set:(v)=>{config.primary_action_color=v;window.elementSdk.setConfig({primary_action_color:v});} },
+                { get:()=>config.secondary_action_color||defaultConfig.secondary_action_color, set:(v)=>{config.secondary_action_color=v;window.elementSdk.setConfig({secondary_action_color:v});} }
+            ],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+            ['platform_title', config.platform_title || defaultConfig.platform_title]
+        ])
+    });
+}
+
+// Enter key login
+document.getElementById('login-code').addEventListener('keydown', function(e) { if(e.key==='Enter') handleLoginAuto(); });
+
+// Initial gallery render
+renderPublicGallery();
+
+lucide.createIcons();
+</script>
+  </div>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a05cf82f4854c90f',t:'MTc4MDQ3MTU4NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
